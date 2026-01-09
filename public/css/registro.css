@@ -1,0 +1,74 @@
+/* Copiado desde public/public/registro.css */
+body {
+  background-color: #fdf7fb; /* Rosa pastel muy suave */
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  color: #5a4d63; /* Lila grisáceo */
+  font-size: 1.2rem;
+}
+
+.titulo-login {
+  font-weight: normal;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+form {
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+label {
+  font-size: 1.1rem;
+  color: #6d5e78; /* Lila oscuro pastel */
+}
+
+input {
+  width: 250px;
+  height: 30px;
+  border: none;
+  outline: none;
+  border-radius: 50px;
+
+  /* Degradado azul bebé pastel */
+  background: linear-gradient(to bottom, #d4ecff, #c0e1f8);
+  color: #4a4a4a;
+  font-size: 1rem;
+  padding: 5px 15px;
+}
+
+/* Botones pastel */
+.btn-azul,
+.btn-azul2 {
+  background: linear-gradient(to bottom, #ffdce9, #f8c6da); /* Rosa bebé pastel */
+  color: #6c4e57;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  box-shadow: 0 3px 10px rgba(255, 182, 193, 0.45); /* Sombra rosada pastel */
+}
+
+.btn-azul:hover,
+.btn-azul2:hover {
+  background: linear-gradient(to bottom, #ffcedf, #f7b7ce);
+  transform: scale(1.05);
+}

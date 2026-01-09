@@ -1,0 +1,78 @@
+/* === Jewelry Girl - Bienvenida (estilo refinado) === */
+
+body {
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(135deg, #7eb8ff, #8fc6ff, #a8d4ff);
+  background-size: 300% 300%;
+  animation: movimientoFondo 12s ease infinite;
+  color: #000000; /* TEXTO NEGRO */
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes movimientoFondo {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Texto superior (BIENVENIDA) */
+h4 {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  color: #000000; /* TEXTO NEGRO */
+  margin-bottom: 1rem;
+}
+
+/* TÍTULO PRINCIPAL */
+.titulo {
+  font-family: "Dancing Script", cursive;
+  font-style: italic;
+  font-size: 4rem;
+  color: #000000; /* TEXTO NEGRO */
+  letter-spacing: 3px;
+  margin-bottom: 15px;
+  text-shadow: none; /* Quitado brillo */
+}
+
+/* Texto descriptivo */
+.descripcion {
+  font-family: "Inter", sans-serif;
+  font-size: 1.15rem;
+  max-width: 550px;
+  text-align: center;
+  color: #000000; /* TEXTO NEGRO */
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+/* Botones (solo color de texto cambiado) */
+.btn {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  background: linear-gradient(135deg, #6f8cff, #8b9cff);
+  color: #000000; /* TEXTO NEGRO */
+  padding: 12px 26px;
+  border-radius: 25px;
+  transition: 0.25s ease;
+  box-shadow: 0px 4px 12px rgba(60, 80, 255, 0.3);
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, #5a74ff, #7a88ff);
+  transform: translateY(-3px);
+}
+
+.botones {
+  display: flex;
+  gap: 18px;
+  margin-top: 10px;
+}

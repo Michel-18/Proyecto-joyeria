@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title><%= titulo %></title>
+    <link rel="stylesheet" href="/css/registro.css" />
+  </head>
+  <body>
+    <header>
+    <h1>JEWELRY</h1>
+    </header>
+    <main>
+      <form method="POST" action="/registro">
+        <label>Nombre</label>
+        <input type="text" name="nombre" placeholder="Nombre" required />
+        <label>Correo</label>
+        <input type="email" name="correo" placeholder="Correo" required />
+        <label>Contraseña</label>
+        <input type="password" name="password" placeholder="Contraseña" required />
+        <button type="submit" class="btn-azul">Aceptar</button>
+      </form>
+    </main>
+  </body>
+</html>

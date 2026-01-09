@@ -1,0 +1,131 @@
+/* Copiado desde public/public/ofertas.css */
+/* ==============================
+   ESTILO GENERAL - Jewelry Girl 💎
+   Paleta pastel
+============================== */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  background-color: #f7eef7; /* Rosa pastel muy suave */
+  color: #4a4a4a;
+}
+
+/* ==============================
+   ENCABEZADO
+============================== */
+header {
+  background-color: #e8d9ff; /* Lila pastel */
+  color: #4b3a63;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+nav a {
+  text-decoration: none;
+}
+
+/* ==============================
+   BOTONES
+============================== */
+button,
+.btn-azul,
+.btn-menu {
+  background-color: #ffdfe5; /* Rosa pastel */
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  color: #7a4a53;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+button:hover,
+.btn-azul:hover,
+.btn-menu:hover {
+  background-color: #ffc9d8;
+  transform: translateY(-2px);
+}
+
+/* ==============================
+   SECCIÓN PRINCIPAL
+============================== */
+main {
+  padding: 40px;
+  text-align: center;
+}
+
+h2 {
+  color: #a98edb; /* Lavanda pastel */
+  font-size: 1.6rem;
+  margin-bottom: 25px;
+}
+
+/* ==============================
+   GRID DE PRODUCTOS
+============================== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+  justify-items: center;
+}
+
+/* ==============================
+   TARJETAS DE PRODUCTOS
+============================== */
+.producto {
+  background-color: #ffeef7; /* Rosa nube */
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  width: 240px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.producto:hover {
+  transform: scale(1.05);
+}
+
+.producto img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 3px solid #ffcfe6; /* Rosa pastel suave */
+  margin-bottom: 12px;
+}
+
+.producto p {
+  margin: 5px 0;
+  color: #6f5c6b; /* Tono pastel gris-morado */
+}
+
+del {
+  color: #cdbcd1;
+}
+
+.producto button {
+  background-color: #c6f7e9; /* Verde menta pastel */
+  color: #3a6f63;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.producto button:hover {
+  background-color: #b2f0db;
+}
