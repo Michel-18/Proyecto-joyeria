@@ -1,157 +1,78 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Consulta de compra</title>
-  <style>
-    body {
-      background-color: #fef6f7;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #555;
-      margin: 0;
-      padding: 20px;
-    }
-    .contenedor {
-      max-width: 700px;
-      margin: 40px auto;
-      background: #fff0f5;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(255, 192, 203, 0.3);
-      padding: 30px;
-    }
-    h1 {
-      text-align: center;
-      color: #d36a94;
-      margin-bottom: 30px;
-    }
-    .vacio {
-      text-align: center;
-      font-style: italic;
-      color: #b38f9b;
-    }
-    .lista {
-      margin-bottom: 25px;
-    }
-    .item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-      margin-bottom: 10px;
-      background-color: #fde8f0;
-      border-radius: 8px;
-      font-weight: 600;
-      color: #8b466e;
-    }
-    .acciones button {
-      margin-left: 8px;
-      padding: 4px 8px;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .acciones button.editar {
-      background-color: #d36a94;
-      color: white;
-    }
-    .acciones button.editar:hover {
-      background-color: #a54475;
-    }
-    .acciones button.eliminar {
-      background-color: #ff7f7f;
-      color: white;
-    }
-    .acciones button.eliminar:hover {
-      background-color: #e05555;
-    }
-    .total {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #a54475;
-      text-align: right;
-      margin-bottom: 25px;
-    }
-    .volver {
-      display: inline-block;
-      background-color: #d36a94;
-      color: white;
-      text-decoration: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      transition: background-color 0.3s ease;
-      font-weight: 600;
-    }
-    .volver:hover {
-      background-color: #a54475;
-    }
-    form.editar-form {
-      margin-top: 10px;
-      background: #fce4f0;
-      padding: 10px;
-      border-radius: 8px;
-    }
-    form.editar-form input {
-      padding: 6px;
-      margin-right: 8px;
-      border-radius: 6px;
-      border: 1px solid #d3a1b8;
-    }
-    form.editar-form button {
-      background-color: #d36a94;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    form.editar-form button:hover {
-      background-color: #a54475;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Tu carrito</title>
+<style>
+body {
+  background:#fef6f7;
+  font-family:Segoe UI;
+  padding:20px;
+}
+.contenedor {
+  max-width:700px;
+  margin:auto;
+  background:#fff0f5;
+  padding:30px;
+  border-radius:12px;
+}
+.item {
+  background:#fde8f0;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:8px;
+  display:flex;
+  justify-content:space-between;
+}
+button {
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.editar { background:#d36a94; color:white; }
+.eliminar { background:#ff7f7f; color:white; }
+.total {
+  text-align:right;
+  font-weight:bold;
+  margin-top:20px;
+}
+a { text-decoration:none; }
+</style>
 </head>
 <body>
 
-<main class="contenedor">
-  <h1>🛍️ Tu carrito</h1>
+<div class="contenedor">
+<h1>🛍️ Tu carrito</h1>
 
-  <% if (carrito.length === 0) { %>
-    <p class="vacio">Tu carrito está vacío</p>
-  <% } else { %>
-    <div class="lista">
-      <% carrito.forEach(item => { %>
-        <div class="item">
-          <span><%= item.nombre %> - $<%= item.precio %></span>
-          <div class="acciones">
-            <a href="/consulta?editar=<%= item.id %>"><button class="editar">✏️ Editar</button></a>
+<% if (carrito.length === 0) { %>
+  <p>Tu carrito está vacío</p>
+<% } else { %>
 
-            <form action="/consulta/eliminar/<%= item.id %>" method="POST" style="display:inline;">
-              <button type="submit" class="eliminar" onclick="return confirm('¿Eliminar producto?')">🗑️ Eliminar</button>
-            </form>
-          </div>
-        </div>
-
-        <% if (productoEditar && productoEditar.id === item.id) { %>
-          <form action="/consulta/editar/<%= item.id %>" method="POST" class="editar-form">
-            <input type="text" name="nombre" value="<%= item.nombre %>" required />
-            <input type="number" name="precio" value="<%= item.precio %>" required />
-            <button type="submit">Guardar</button>
-          </form>
-        <% } %>
-
-      <% }) %>
+  <% carrito.forEach(item => { %>
+    <div class="item">
+      <span><%= item.nombre %> - $<%= item.precio %></span>
+      <div>
+        <a href="/ofertas?reemplazar=<%= item.id %>">
+          <button class="editar">🔄 Cambiar</button>
+        </a>
+        <form action="/consulta/eliminar/<%= item.id %>" method="POST" style="display:inline">
+          <button class="eliminar">🗑️</button>
+        </form>
+      </div>
     </div>
+  <% }) %>
 
-    <div class="total">
-      Total: $<%= carrito.reduce((sum, p) => sum + Number(p.precio), 0) %>
-    </div>
+  <div class="total">
+    Total: $
+    <%= carrito.reduce((s,p)=>s+p.precio,0) %>
+  </div>
 
-  <% } %>
+<% } %>
 
-  <a href="/ofertas" class="volver">← Seguir comprando</a>
-</main>
+<br>
+<a href="/ofertas">← Seguir comprando</a>
+</div>
 
 </body>
 </html>

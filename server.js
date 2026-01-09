@@ -54,7 +54,12 @@ app.get('/inicio', (req, res) => {
 });
 
 app.get('/ofertas', (req, res) => {
-  res.render('ofertas', { titulo: 'Ofertas' });
+  const carrito = req.session.carrito || [];
+  res.render('ofertas', {
+    titulo: 'Ofertas',
+    reemplazar: req.query.reemplazar || null,
+    carrito
+  });
 });
 
 // ==============================
@@ -64,10 +69,12 @@ app.post('/registro', async (req, res) => {
   try {
     const { nombre, correo, password } = req.body;
     const hashed = await bcrypt.hash(password, 10);
+
     await pool.query(
       'INSERT INTO registro (nombre, correo, password) VALUES (?, ?, ?)',
       [nombre, correo.toLowerCase(), hashed]
     );
+
     res.redirect('/login');
   } catch (error) {
     console.error(error);
@@ -111,44 +118,47 @@ app.get('/perfil', (req, res) => {
 });
 
 // ==============================
-// CARRITO CON CRUD
+// CARRITO (SIN EDITAR PRECIO/NOMBRE)
 // ==============================
 
-// Agregar producto
+// Agregar producto normal
 app.post('/agregar-carrito', (req, res) => {
   const { nombre, precio } = req.body;
 
   if (!req.session.carrito) req.session.carrito = [];
 
-  // ID único para cada producto en sesión
-  const id = req.session.carrito.length > 0
-    ? req.session.carrito[req.session.carrito.length - 1].id + 1
-    : 1;
-
+  const id = Date.now(); // ID único real
   req.session.carrito.push({ id, nombre, precio: Number(precio) });
+
   res.redirect('/consulta');
 });
 
-// Mostrar carrito + opción de editar
+// Mostrar carrito
 app.get('/consulta', (req, res) => {
   const carrito = req.session.carrito || [];
-  const editarId = req.query.editar ? Number(req.query.editar) : null;
-  const productoEditar = carrito.find(p => p.id === editarId);
-  res.render('consulta', { titulo: 'Tu Carrito', carrito, productoEditar });
+  res.render('consulta', {
+    titulo: 'Tu Carrito',
+    carrito
+  });
 });
 
-// Editar producto
-app.post('/consulta/editar/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const { nombre, precio } = req.body;
+// Reemplazar producto
+app.get('/carrito/reemplazar', (req, res) => {
+  const { viejoId, nombre, precio } = req.query;
 
   if (!req.session.carrito) return res.redirect('/consulta');
 
-  const producto = req.session.carrito.find(p => p.id === id);
-  if (producto) {
-    producto.nombre = nombre;
-    producto.precio = Number(precio);
-  }
+  // eliminar producto viejo
+  req.session.carrito = req.session.carrito.filter(
+    p => p.id !== Number(viejoId)
+  );
+
+  // agregar nuevo producto
+  req.session.carrito.push({
+    id: Date.now(),
+    nombre,
+    precio: Number(precio)
+  });
 
   res.redirect('/consulta');
 });
