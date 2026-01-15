@@ -1,88 +1,155 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title><%= titulo %></title>
-  <link rel="stylesheet" href="/css/inicio.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Tienda | Jewelry Girl</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #faf4f7;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: 'Dancing Script', cursive;
+      font-size: 3rem;
+      color: #c2185b;
+      margin-bottom: 30px;
+    }
+
+    .productos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.1);
+      padding: 20px;
+      text-align: center;
+      transition: transform .3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .nombre {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .descripcion {
+      font-size: .95rem;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .precio {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #e91e63;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 22px;
+      background: #e91e63;
+      color: white;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: .3s;
+    }
+
+    .btn:hover {
+      background: #ff6090;
+    }
+
+    .volver {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      text-decoration: none;
+      color: #c2185b;
+      font-weight: bold;
+    }
+
+    .empty {
+      text-align: center;
+      color: #777;
+      font-size: 1.1rem;
+    }
+  </style>
 </head>
-
 <body>
-<header>
-  <h1>Jewelry Girl 💎</h1>
-  <nav>
-    <a href="/logout"><button>Cerrar sesión</button></a>
-    <a href="/eliminar-cuenta"><button>Eliminar cuenta</button></a>
-  </nav>
-</header>
 
-<main>
-  <aside>
-    <ul class="menu-lateral">
-      <li><a href="/ofertas" class="btn-menu">Ofertas</a></li>
-      <li><a href="/tienda" class="btn-menu">Tienda F.</a></li>
-      <li><a href="/consulta" class="btn-menu">Carrito</a></li>
-      <!-- ✅ BOTÓN DE TICKETS -->
-      <li><a href="/tickets" class="btn-menu">Mis tickets</a></li>
-    </ul>
-  </aside>
+  <h1>Nuestra Tienda 💎</h1>
 
-  <section class="productos">
-    <h2>Toda, aretes, collares, anillos y pulseras</h2>
+  <% if (!productos || productos.length === 0) { %>
+    <p class="empty">No hay productos disponibles por el momento</p>
+  <% } else { %>
 
-    <div class="grid">
+    <div class="productos">
+      <% productos.forEach(p => { %>
+        <div class="card">
 
-      <!-- Producto 1 -->
-      <div class="producto">
-        <img src="/images/aretes.svg" alt="Aretes" />
-        <p><strong>Producto:</strong> Aretes</p>
-        <p>Material: Acero</p>
-        <p>Precio: $50</p>
+          <% if (p.imagen) { %>
+            <img 
+              src="<%= p.imagen %>" 
+              alt="Producto <%= p.nombre %>" 
+              loading="lazy"
+            >
+          <% } else { %>
+            <img 
+              src="https://via.placeholder.com/300x180?text=Jewelry+Girl" 
+              alt="Producto sin imagen" 
+              loading="lazy"
+            >
+          <% } %>
 
-        <a href="/carrito/agregar?nombre=Aretes&precio=50<%= typeof reemplazar !== 'undefined' && reemplazar ? '&reemplazar=' + reemplazar : '' %>">
-          <button>🛒 Añadir</button>
-        </a>
-      </div>
+          <div class="nombre"><%= p.nombre %></div>
 
-      <!-- Producto 2 -->
-      <div class="producto">
-        <img src="/images/collar.svg" alt="Collar" />
-        <p><strong>Producto:</strong> Collar</p>
-        <p>Material: Oro</p>
-        <p>Precio: $50</p>
+          <% if (p.descripcion) { %>
+            <div class="descripcion"><%= p.descripcion %></div>
+          <% } %>
 
-        <a href="/carrito/agregar?nombre=Collar&precio=50<%= typeof reemplazar !== 'undefined' && reemplazar ? '&reemplazar=' + reemplazar : '' %>">
-          <button>🛒 Añadir</button>
-        </a>
-      </div>
+          <div class="precio">
+            $<%= Number(p.precio).toFixed(2) %>
+          </div>
 
-      <!-- Producto 3 -->
-      <div class="producto">
-        <img src="/images/anillo.svg" alt="Anillo" />
-        <p><strong>Producto:</strong> Anillo</p>
-        <p>Material: Plata</p>
-        <p>Precio: $20</p>
+          <a href="/carrito/agregar/<%= p.id %>" class="btn">
+            🛒 Agregar al carrito
+          </a>
 
-        <a href="/carrito/agregar?nombre=Anillo&precio=20<%= typeof reemplazar !== 'undefined' && reemplazar ? '&reemplazar=' + reemplazar : '' %>">
-          <button>🛒 Añadir</button>
-        </a>
-      </div>
-
-      <!-- Producto 4 -->
-      <div class="producto">
-        <img src="/images/pulsera.svg" alt="Pulsera" />
-        <p><strong>Producto:</strong> Pulsera</p>
-        <p>Material: Chapa de oro</p>
-        <p>Precio: $20</p>
-
-        <a href="/carrito/agregar?nombre=Pulsera&precio=20<%= typeof reemplazar !== 'undefined' && reemplazar ? '&reemplazar=' + reemplazar : '' %>">
-          <button>🛒 Añadir</button>
-        </a>
-      </div>
-
+        </div>
+      <% }) %>
     </div>
-  </section>
-</main>
+
+  <% } %>
+
+  <a href="/inicio" class="volver">⬅ Volver al inicio</a>
 
 </body>
 </html>

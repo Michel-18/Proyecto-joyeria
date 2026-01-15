@@ -2,45 +2,55 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Método de pago</title>
+<title>Pago</title>
+
 <style>
 body {
-  background:#fef6f7;
-  font-family:Segoe UI;
-  padding:20px;
+  background: #faf4f7;
+  font-family: 'Inter', sans-serif;
 }
+
 .contenedor {
-  max-width:500px;
-  margin:auto;
-  background:#fff0f5;
-  padding:30px;
-  border-radius:12px;
+  max-width: 400px;
+  margin: 60px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(0,0,0,.1);
+  text-align: center;
 }
+
 button {
-  width:100%;
-  margin:10px 0;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  background:#d36a94;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  background: #d36a94;
+  color: white;
+  border-radius: 25px;
+  border: none;
+  font-size: 1rem;
+}
+
+a {
+  display: block;
+  margin-top: 15px;
+  text-decoration: none;
+  color: #c2185b;
+  font-weight: bold;
 }
 </style>
 </head>
+
 <body>
 
 <div class="contenedor">
-<h1>💳 Método de pago</h1>
+<h1>💳 Pago</h1>
+<p>Total: <strong>$<%= total %></strong></p>
 
-<p>Total a pagar: <strong>$<%= total %></strong></p>
+<button>Tarjeta</button>
+<button>Efectivo</button>
 
-<button>💳 Tarjeta</button>
-<button>💵 Pago en efectivo</button>
-
-<br><br>
-<a href="/consulta">← Volver al carrito</a>
+<a href="/consulta">← Volver</a>
 </div>
 
 </body>

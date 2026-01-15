@@ -1,71 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title><%= titulo %></title>
-  <style>
-    body {
-      font-family: 'Courier New', monospace;
-      background: #f5f5f5;
-      padding: 20px;
-    }
+<meta charset="UTF-8">
+<title>Tickets</title>
 
-    h1 {
-      text-align: center;
-    }
+<style>
+body {
+  background: #faf4f7;
+  font-family: monospace;
+}
 
-    .ticket {
-      background: #fff;
-      width: 320px;
-      margin: 20px auto;
-      padding: 15px;
-      border: 1px dashed #999;
-    }
+.ticket {
+  max-width: 320px;
+  margin: 40px auto;
+  background: white;
+  padding: 20px;
+  border: 1px dashed #333;
+}
 
-    .detalle {
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
+h1 {
+  text-align: center;
+}
 
-    .total {
-      font-weight: bold;
-      border-top: 1px dashed #000;
-      padding-top: 8px;
-    }
-
-    a {
-      display: block;
-      text-align: center;
-      margin-top: 10px;
-      text-decoration: none;
-      color: #c2185b;
-      font-weight: bold;
-    }
-  </style>
+.total {
+  text-align: right;
+  font-weight: bold;
+}
+</style>
 </head>
+
 <body>
 
-<h1>🧾 Mis tickets</h1>
+<div class="ticket">
+<h1>🧾 Jewelry Girl</h1>
+<p><%= ticket.detalle %></p>
+<hr>
+<p class="total">Total: $<%= ticket.total %></p>
+</div>
 
-<% if (!tickets.length) { %>
-  <p style="text-align:center;">No tienes compras registradas</p>
-<% } %>
-
-<% tickets.forEach(ticket => { %>
-  <div class="ticket">
-    <div class="detalle">
-      <%= ticket.detalle %>
-    </div>
-
-    <div class="total">
-      Total: $<%= ticket.total %>
-    </div>
-
-    <a href="/ticket/<%= ticket.pago_id %>">Ver ticket</a>
-  </div>
-<% }) %>
-
-<a href="/inicio">🏠 Volver al inicio</a>
+<a href="/inicio">← Inicio</a>
 
 </body>
 </html>

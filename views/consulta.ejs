@@ -2,82 +2,70 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tu carrito</title>
+<title>Carrito | Jewelry Girl</title>
 
 <style>
 body {
-  background:#fef6f7;
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding:20px;
+  background: #faf4f7;
+  font-family: 'Inter', sans-serif;
 }
 
 .contenedor {
-  max-width:700px;
-  margin:auto;
-  background:#fff0f5;
-  padding:30px;
-  border-radius:12px;
-  box-shadow:0 0 10px rgba(0,0,0,0.1);
+  max-width: 700px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(0,0,0,.1);
 }
 
 h1 {
-  text-align:center;
+  text-align: center;
+  color: #c2185b;
 }
 
 .item {
-  background:#fde8f0;
-  padding:12px;
-  margin-bottom:10px;
-  border-radius:8px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.botones {
-  display:flex;
-  gap:6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff0f5;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 button {
-  border:none;
-  padding:6px 10px;
-  border-radius:6px;
-  cursor:pointer;
-  font-size:14px;
-}
-
-.editar {
-  background:#d36a94;
-  color:white;
-}
-
-.eliminar {
-  background:#ff7f7f;
-  color:white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: #ff7f7f;
+  color: white;
+  cursor: pointer;
 }
 
 .total {
-  text-align:right;
-  font-weight:bold;
-  font-size:18px;
-  margin-top:20px;
+  text-align: right;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-top: 20px;
 }
 
 .comprar {
-  width:100%;
-  margin-top:15px;
-  background:#d36a94;
-  color:white;
-  padding:12px;
-  font-size:16px;
-  border-radius:8px;
+  width: 100%;
+  background: #d36a94;
+  padding: 12px;
+  border-radius: 25px;
+  font-size: 1rem;
+  margin-top: 15px;
 }
 
 a {
-  text-decoration:none;
-  color:#d36a94;
-  font-weight:bold;
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: #c2185b;
+  font-weight: bold;
+  text-decoration: none;
 }
 </style>
 </head>
@@ -88,41 +76,28 @@ a {
 <h1>🛍️ Tu carrito</h1>
 
 <% if (!carrito || carrito.length === 0) { %>
-
   <p style="text-align:center">Tu carrito está vacío</p>
-
 <% } else { %>
+
+  <% const total = carrito.reduce((s, p) => s + Number(p.precio), 0); %>
 
   <% carrito.forEach(item => { %>
     <div class="item">
-      <span>
-        <strong><%= item.nombre %></strong> — $<%= item.precio %>
-      </span>
-
-      <div class="botones">
-        <a href="/ofertas?reemplazar=<%= item.id %>">
-          <button type="button" class="editar">🔄 Cambiar</button>
-        </a>
-
-        <form action="/consulta/eliminar/<%= item.id %>" method="POST">
-          <button type="submit" class="eliminar">🗑️</button>
-        </form>
-      </div>
+      <span><strong><%= item.nombre %></strong> — $<%= item.precio %></span>
+      <form action="/consulta/eliminar/<%= item.id %>" method="POST">
+        <button>🗑️</button>
+      </form>
     </div>
   <% }) %>
 
-  <div class="total">
-    Total: $
-    <%= carrito.reduce((s, p) => s + p.precio, 0) %>
-  </div>
+  <div class="total">Total: $<%= total %></div>
 
   <form action="/comprar" method="POST">
-    <button type="submit" class="comprar">💳 Comprar</button>
+    <button class="comprar">💳 Comprar</button>
   </form>
 
 <% } %>
 
-<br>
 <a href="/inicio">← Seguir comprando</a>
 </div>
 

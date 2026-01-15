@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Admin</title>
+
+  <style>
+    body {
+      background: #fef6f7;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 30px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #b96b87;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      color: #805366;
+      margin-top: 30px;
+    }
+
+    .contenedor {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .acciones {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .acciones a {
+      background: #e91e63;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,.15);
+    }
+
+    .producto {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 6px 15px rgba(0,0,0,.08);
+    }
+
+    .producto-info {
+      font-size: 16px;
+      color: #444;
+    }
+
+    .producto-info span {
+      font-weight: bold;
+      color: #c2185b;
+    }
+
+    form {
+      margin: 0;
+    }
+
+    button {
+      background: #c2185b;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #ad1457;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="contenedor">
+
+    <h2>🛠 Panel de Administración</h2>
+
+    <div class="acciones">
+      <a href="/admin/productos/nuevo">➕ Nuevo producto</a>
+    </div>
+
+    <h3>📦 Productos registrados</h3>
+
+    <% if (!productos || productos.length === 0) { %>
+      <p>No hay productos registrados.</p>
+    <% } %>
+
+    <% productos.forEach(p => { %>
+      <div class="producto">
+        <div class="producto-info">
+          <%= p.nombre %> — <span>$<%= p.precio %></span>
+        </div>
+
+        <form method="POST" action="/admin/productos/eliminar/<%= p.id %>">
+          <button type="submit">Eliminar</button>
+        </form>
+      </div>
+    <

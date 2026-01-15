@@ -1,24 +1,65 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Iniciar sesión</title>
-    <link rel="stylesheet" href="/css/login.css" />
-  </head>
-  <body>
-    <header><h1>JEWELRY</h1></header>
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
 
-    <main>
-      <form method="POST" action="/login">
-        <label>Nombre y correo:</label>
-        <input type="text" name="correo" placeholder="Correo o nombre" required />
-        <label>Contraseña:</label>
-        <input type="password" name="password" placeholder="Contraseña" required />
-        <button type="submit" class="btn-azul">Aceptar</button>
-      </form>
-      <p>¿No tienes cuenta?</p>
-     <a href="/registro"><button type="button" class="btn-azul">Registrarse</button></a>
-    </main>
+<style>
+body {
+  background: #faf4f7;
+  font-family: 'Inter', sans-serif;
+}
 
-  </body>
+main {
+  max-width: 350px;
+  margin: 80px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(0,0,0,.1);
+}
+
+h1 {
+  text-align: center;
+  color: #c2185b;
+}
+
+input, button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+}
+
+button {
+  background: #d36a94;
+  color: white;
+  font-weight: bold;
+}
+
+a {
+  display: block;
+  text-align: center;
+  margin-top: 15px;
+  color: #c2185b;
+}
+</style>
+</head>
+
+<body>
+
+<main>
+<h1>JEWELRY</h1>
+
+<form method="POST" action="/login">
+  <input type="email" name="correo" placeholder="Correo" required>
+  <input type="password" name="password" placeholder="Contraseña" required>
+  <button>Entrar</button>
+</form>
+
+<a href="/registro">Registrarse</a>
+</main>
+
+</body>
 </html>

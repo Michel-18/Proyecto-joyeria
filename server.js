@@ -1,251 +1,202 @@
-require('dotenv').config();
 const express = require('express');
-const path = require('path');
 const session = require('express-session');
-const bcrypt = require('bcrypt');
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2');
+const path = require('path');
 
 const app = express();
 
-// ==============================
-// MYSQL (POOL)
-// ==============================
-const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'Jewerly_girl',
-  port: 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
-
-// ==============================
-// MIDDLEWARE
-// ==============================
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-app.use(session({
-  secret: 'secreto_jewelry',
-  resave: false,
-  saveUninitialized: true
-}));
-
-// ==============================
-// EJS + ESTÁTICOS
-// ==============================
+// ================== CONFIG ==================
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ==============================
-// AUTH
-// ==============================
+app.use(session({
+  secret: 'jewelry-secret',
+  resave: false,
+  saveUninitialized: false
+}));
+
+// ================== DB ==================
+const db = mysql.createPool({
+  host: 'sql3.freesqldatabase.com',
+  user: 'sql3814404',
+  password: 'ldvmce7MY1',
+  database: 'sql3814404'
+});
+
+// ================== MIDDLEWARE ==================
 function auth(req, res, next) {
-  if (!req.session.userId) return res.redirect('/login');
+  if (!req.session.usuario) {
+    return res.redirect('/login');
+  }
   next();
 }
 
-// ==============================
-// RUTAS GENERALES
-// ==============================
-app.get('/', (req, res) =>
-  res.render('bienvenida', { titulo: 'Bienvenida' })
-);
-
-app.get('/login', (req, res) =>
-  res.render('login', { titulo: 'Iniciar sesión' })
-);
-
-app.get('/registro', (req, res) =>
-  res.render('registro', { titulo: 'Registro' })
-);
-
-app.get('/inicio', auth, (req, res) =>
-  res.render('inicio', { titulo: 'Inicio' })
-);
-
-app.get('/tienda', auth, (req, res) =>
-  res.render('tienda', { titulo: 'Tienda' })
-);
-
-app.get('/ofertas', auth, (req, res) =>
-  res.render('ofertas', {
-    titulo: 'Ofertas',
-    carrito: req.session.carrito || [],
-    reemplazar: req.query.reemplazar || null
-  })
-);
-
-app.get('/consulta', auth, (req, res) =>
-  res.render('consulta', {
-    titulo: 'Carrito',
-    carrito: req.session.carrito || []
-  })
-);
-
-// ==============================
-// CARRITO
-// ==============================
-app.get('/carrito/agregar', auth, (req, res) => {
-  const { nombre, precio, reemplazar } = req.query;
-
-  if (!req.session.carrito) req.session.carrito = [];
-
-  const nuevo = {
-    id: Date.now(),
-    nombre,
-    precio: Number(precio)
-  };
-
-  if (reemplazar) {
-    const i = req.session.carrito.findIndex(p => p.id == reemplazar);
-    if (i !== -1) req.session.carrito[i] = nuevo;
+// ================== RUTA RAÍZ ==================
+app.get('/', (req, res) => {
+  if (req.session.usuario) {
+    res.redirect('/inicio');
   } else {
-    req.session.carrito.push(nuevo);
+    res.redirect('/login');
   }
-
-  res.redirect('/consulta');
 });
 
+// ================== LOGIN ==================
+app.get('/login', (req, res) => {
+  res.render('login', { titulo: 'Iniciar sesión' });
+});
+
+app.post('/login', async (req, res) => {
+  const { correo, password } = req.body;
+
+  try {
+    const [rows] = await db.promise().query(
+      'SELECT * FROM registro WHERE correo = ? AND password = ?',
+      [correo, password]
+    );
+
+    if (rows.length === 0) return res.redirect('/login');
+
+    req.session.usuario = rows[0];
+    req.session.carrito = req.session.carrito || [];
+
+    res.redirect('/inicio');
+
+  } catch (error) {
+    console.error(error);
+    res.send('Error al iniciar sesión');
+  }
+});
+
+// ================== REGISTRO ==================
+app.get('/registro', (req, res) => {
+  res.render('registro', { titulo: 'Registro' });
+});
+
+app.post('/registro', async (req, res) => {
+  const { nombre, correo, password } = req.body;
+
+  try {
+    await db.promise().query(
+      'INSERT INTO registro (nombre, correo, password) VALUES (?, ?, ?)',
+      [nombre, correo, password]
+    );
+    res.redirect('/login');
+
+  } catch (error) {
+    console.error(error);
+    res.send('Error al registrar usuario');
+  }
+});
+
+// ================== LOGOUT ==================
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/login');
+  });
+});
+
+// ================== INICIO / TIENDA ==================
+app.get('/inicio', auth, async (req, res) => {
+  try {
+    const [productos] = await db.promise().query('SELECT * FROM productos');
+
+    res.render('tienda', {
+      productos: productos || [],
+      usuario: req.session.usuario
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.send('Error al cargar productos');
+  }
+});
+
+// ================== AGREGAR AL CARRITO ==================
+app.get('/carrito/agregar/:id', auth, async (req, res) => {
+  const id = parseInt(req.params.id);
+  req.session.carrito = req.session.carrito || [];
+
+  try {
+    const [rows] = await db.promise().query(
+      'SELECT id, nombre, precio FROM productos WHERE id = ?',
+      [id]
+    );
+
+    if (rows.length > 0) req.session.carrito.push(rows[0]);
+    res.redirect('/consulta');
+
+  } catch (error) {
+    console.error(error);
+    res.send('Error al agregar al carrito');
+  }
+});
+
+// ================== VER CARRITO ==================
+app.get('/consulta', auth, (req, res) => {
+  res.render('consulta', { carrito: req.session.carrito || [] });
+});
+
+// ================== ELIMINAR DEL CARRITO ==================
 app.post('/consulta/eliminar/:id', auth, (req, res) => {
-  const id = Number(req.params.id);
+  const id = parseInt(req.params.id);
   req.session.carrito = (req.session.carrito || []).filter(p => p.id !== id);
   res.redirect('/consulta');
 });
 
-// ==============================
-// PAGO
-// ==============================
-app.post('/comprar', auth, (req, res) => res.redirect('/pago'));
-
-app.get('/pago', auth, (req, res) => {
+// ================== COMPRAR ==================
+app.post('/comprar', auth, async (req, res) => {
   const carrito = req.session.carrito || [];
-  const total = carrito.reduce((s, p) => s + p.precio, 0);
+  if (carrito.length === 0) return res.redirect('/consulta');
 
-  res.render('pagotarjeta', {
-    titulo: 'Pago con tarjeta',
-    carrito,
-    total
-  });
-});
-
-// ==============================
-// PAGOTARJETA (TRANSACCIÓN)
-// ==============================
-app.post('/pagotarjeta', auth, async (req, res) => {
-  const conn = await pool.getConnection();
+  const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
+  const usuario_id = req.session.usuario.id;
 
   try {
-    const { nombre, numero } = req.body;
-    const carrito = req.session.carrito || [];
-    const total = carrito.reduce((s, p) => s + p.precio, 0);
-
-    if (!carrito.length) return res.redirect('/consulta');
-
-    await conn.beginTransaction();
-
-    const [pago] = await conn.query(
-      'INSERT INTO pagos (usuario_id, total, metodo, tarjeta, nombre) VALUES (?, ?, ?, ?, ?)',
-      [req.session.userId, total, 'Tarjeta', numero.slice(-4), nombre]
+    // Guardar venta
+    const [venta] = await db.promise().query(
+      'INSERT INTO ventas (usuario_id, total, fecha) VALUES (?, ?, NOW())',
+      [usuario_id, total]
     );
+    const venta_id = venta.insertId;
 
-    const detalle = carrito.map(p => `${p.nombre} $${p.precio}`).join(', ');
+    // Guardar detalle de venta
+    for (let item of carrito) {
+      await db.promise().query(
+        'INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio) VALUES (?, ?, ?, ?)',
+        [venta_id, item.id, 1, item.precio]
+      );
+    }
 
-    await conn.query(
-      'INSERT INTO tickets (pago_id, detalle, total) VALUES (?, ?, ?)',
-      [pago.insertId, detalle, total]
-    );
-
-    await conn.commit();
-
+    // Limpiar carrito
     req.session.carrito = [];
-    res.redirect(`/ticket/${pago.insertId}`);
+    res.redirect('/tickets');
 
   } catch (error) {
-    await conn.rollback();
-    console.error('❌ Error en pago:', error);
-    res.status(500).send('Error procesando el pago');
-  } finally {
-    conn.release();
+    console.error(error);
+    res.send('Error al guardar la compra');
   }
 });
 
-// ==============================
-// VER TICKET INDIVIDUAL
-// ==============================
-app.get('/ticket/:id', auth, async (req, res) => {
-  const [rows] = await pool.query(
-    'SELECT * FROM tickets WHERE pago_id = ?',
-    [req.params.id]
-  );
-
-  if (!rows.length) return res.send('Ticket no encontrado');
-
-  res.render('ticket', {
-    titulo: 'Ticket de compra',
-    ticket: rows[0]
-  });
-});
-
-// ==============================
-// LISTAR TICKETS DEL USUARIO
-// ==============================
+// ================== TICKETS ==================
 app.get('/tickets', auth, async (req, res) => {
-  const [rows] = await pool.query(`
-    SELECT 
-      t.id,
-      t.pago_id,
-      t.detalle,
-      t.total
-    FROM tickets t
-    INNER JOIN pagos p ON t.pago_id = p.id
-    WHERE p.usuario_id = ?
-    ORDER BY t.id DESC
-  `, [req.session.userId]);
+  try {
+    const usuario_id = req.session.usuario.id;
+    const [ventas] = await db.promise().query(
+      'SELECT * FROM ventas WHERE usuario_id = ? ORDER BY fecha DESC',
+      [usuario_id]
+    );
 
-  res.render('tickets', {
-    titulo: 'Mis tickets',
-    tickets: rows
-  });
+    res.render('tickets', { ventas });
+  } catch (error) {
+    console.error(error);
+    res.send('Error al cargar tickets');
+  }
 });
 
-// ==============================
-// LOGIN / REGISTRO
-// ==============================
-app.post('/registro', async (req, res) => {
-  const hash = await bcrypt.hash(req.body.password, 10);
-
-  await pool.query(
-    'INSERT INTO registro (nombre, correo, password) VALUES (?, ?, ?)',
-    [req.body.nombre, req.body.correo.toLowerCase(), hash]
-  );
-
-  res.redirect('/login');
+// ================== SERVIDOR ==================
+app.listen(9999, () => {
+  console.log('Servidor activo en http://localhost:9999');
 });
-
-app.post('/login', async (req, res) => {
-  const [rows] = await pool.query(
-    'SELECT * FROM registro WHERE correo = ?',
-    [req.body.correo.toLowerCase()]
-  );
-
-  if (!rows.length) return res.send('Usuario no encontrado');
-
-  const ok = await bcrypt.compare(req.body.password, rows[0].password);
-  if (!ok) return res.send('Contraseña incorrecta');
-
-  req.session.userId = rows[0].id;
-  res.redirect('/inicio');
-});
-
-app.get('/logout', (req, res) =>
-  req.session.destroy(() => res.redirect('/login'))
-);
-
-// ==============================
-app.listen(9999, () =>
-  console.log('✅ Servidor en http://localhost:9999')
-);

@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title><%= titulo %></title>
+  <title>Mis Tickets | Jewelry Girl</title>
+
   <style>
     body {
       background: #f2f2f2;
@@ -10,17 +11,23 @@
       padding: 20px;
     }
 
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .tickets-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
     .ticket {
       background: #fff;
       width: 320px;
-      margin: auto;
       padding: 15px;
       border: 1px dashed #333;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
     }
 
     .line {
@@ -31,6 +38,7 @@
     .detalle {
       font-size: 14px;
       margin-bottom: 8px;
+      white-space: pre-line;
     }
 
     .total {
@@ -39,35 +47,66 @@
       text-align: right;
     }
 
-    a {
+    .fecha {
+      font-size: 12px;
+      text-align: center;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    .volver {
       display: block;
       text-align: center;
-      margin-top: 15px;
+      margin-top: 30px;
       text-decoration: none;
       font-weight: bold;
       color: #c2185b;
+    }
+
+    .empty {
+      text-align: center;
+      color: #777;
+      font-size: 1.1rem;
     }
   </style>
 </head>
 <body>
 
-<div class="ticket">
-  <h1>🧾 Jewelry Girl</h1>
+<h1>🧾 Mis Tickets - Jewelry Girl</h1>
 
-  <div class="line"></div>
+<% if (!tickets || tickets.length === 0) { %>
+  <p class="empty">No tienes tickets registrados</p>
+<% } else { %>
 
-  <div class="detalle">
-    <%= ticket.detalle %>
+  <div class="tickets-container">
+    <% tickets.forEach(ticket => { %>
+      <div class="ticket">
+
+        <h3 style="text-align:center;">💎 Jewelry Girl</h3>
+
+        <div class="line"></div>
+
+        <div class="detalle">
+          <%= ticket.detalle %>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="total">
+          Total: $<%= ticket.total %>
+        </div>
+
+        <div class="fecha">
+          <%= new Date(ticket.fecha).toLocaleString() %>
+        </div>
+
+      </div>
+    <% }) %>
   </div>
 
-  <div class="line"></div>
+<% } %>
 
-  <div class="total">
-    Total: $<%= ticket.total %>
-  </div>
-</div>
-
-<a href="/tickets">⬅ Volver a mis tickets</a>
+<a href="/inicio" class="volver">⬅ Volver al inicio</a>
 
 </body>
 </html>

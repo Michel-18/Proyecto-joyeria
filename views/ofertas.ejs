@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= titulo %></title>
+
+  <title>Ofertas | Jewelry Girl</title>
+
   <link rel="stylesheet" href="/css/ofertas.css">
 </head>
 <body>
@@ -11,7 +13,7 @@
 <header>
   <h1>💎 Ofertas Jewelry Girl 💎</h1>
   <nav>
-    <a href="/inicio" class="btn-azul">Volver al inicio</a>
+    <a href="/inicio" class="btn-azul">⬅ Volver al inicio</a>
     <a href="/consulta" class="btn-azul">🛍️ Ver carrito</a>
   </nav>
 </header>
@@ -24,29 +26,27 @@
 
       <!-- PRODUCTO 1 -->
       <div class="producto">
-        <img src="/images/aretes.svg" alt="Aretes">
-        <p><strong>Aretes en oferta</strong></p>
-        <p>Antes: <del>$50</del> | Ahora: $35</p>
+        <img src="/images/aretes.svg" alt="Aretes en oferta">
 
-        <a
-          href="/carrito/agregar?nombre=Aretes en oferta&precio=35<%= reemplazar ? '&reemplazar=' + reemplazar : '' %>">
-          <button class="btn-carrito">
-            <%= reemplazar ? '🔄 Cambiar por este' : '🛒 Añadir' %>
-          </button>
+        <p><strong>Aretes en oferta</strong></p>
+        <p>Antes: <del>$50</del> | <strong>Ahora: $35</strong></p>
+
+        <!-- ID REAL DE PRODUCTO -->
+        <a href="/carrito/agregar/1" class="btn-carrito">
+          🛒 Añadir al carrito
         </a>
       </div>
 
       <!-- PRODUCTO 2 -->
       <div class="producto">
-        <img src="/images/collar.svg" alt="Collar">
-        <p><strong>Collar en oferta</strong></p>
-        <p>Antes: <del>$80</del> | Ahora: $60</p>
+        <img src="/images/collar.svg" alt="Collar en oferta">
 
-        <a
-          href="/carrito/agregar?nombre=Collar en oferta&precio=60<%= reemplazar ? '&reemplazar=' + reemplazar : '' %>">
-          <button class="btn-carrito">
-            <%= reemplazar ? '🔄 Cambiar por este' : '🛒 Añadir' %>
-          </button>
+        <p><strong>Collar en oferta</strong></p>
+        <p>Antes: <del>$80</del> | <strong>Ahora: $60</strong></p>
+
+        <!-- ID REAL DE PRODUCTO -->
+        <a href="/carrito/agregar/2" class="btn-carrito">
+          🛒 Añadir al carrito
         </a>
       </div>
 

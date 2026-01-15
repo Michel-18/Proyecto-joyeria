@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title><%= titulo %></title>
+
   <style>
     body {
       background:#fef6f7;
@@ -17,11 +18,17 @@
       border-radius:12px;
       box-shadow:0 8px 20px rgba(0,0,0,.1);
     }
-    h2 { text-align:center; }
+    h2 { text-align:center; color:#b96b87; }
     .total {
       font-size:18px;
       font-weight:bold;
       margin:15px 0;
+      text-align:center;
+    }
+    .producto {
+      font-size:14px;
+      border-bottom:1px solid #eee;
+      padding:5px 0;
     }
     input, button {
       width:100%;
@@ -34,24 +41,38 @@
       border:none;
       border-radius:6px;
       cursor:pointer;
+      font-size:16px;
+    }
+    .cancelar {
+      background:#aaa;
+      margin-top:5px;
     }
   </style>
 </head>
 <body>
 
 <div class="contenedor">
-  <h2>Pago con tarjeta</h2>
+  <h2>Pago con tarjeta 💳</h2>
+
+  <% carrito.forEach(p => { %>
+    <div class="producto">
+      <%= p.nombre %> — $<%= p.precio %>
+    </div>
+  <% }) %>
 
   <p class="total">Total: $<%= total %></p>
 
   <form method="POST" action="/pagotarjeta">
-    <input type="text" name="nombre" placeholder="Nombre en la tarjeta" required>
+    <input type="text" name="nombre" placeholder="Nombre del titular" required>
     <input type="text" name="numero" placeholder="Número de tarjeta" required>
-    <input type="text" name="vencimiento" placeholder="MM/AA" required>
-    <input type="text" name="cvv" placeholder="CVV" required>
 
-    <button type="submit">Pagar</button>
+    <button type="submit">Confirmar pago</button>
+  </form>
+
+  <form action="/consulta">
+    <button type="submit" class="cancelar">Cancelar</button>
   </form>
 </div>
+
 </body>
 </html>
