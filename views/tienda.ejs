@@ -108,7 +108,17 @@ nav a {
 <section class="productos">
   <% productos.forEach(p => { %>
     <div class="card">
-      <img src="<%= p.imagen || 'https://via.placeholder.com/300x180' %>">
+      <% 
+        let imagenUrl = 'https://via.placeholder.com/300x180?text=' + encodeURIComponent(p.nombre);
+        if (p.imagen) {
+          if (p.imagen.includes('/') || p.imagen.includes('http')) {
+            imagenUrl = p.imagen;
+          } else {
+            imagenUrl = '/images/' + p.imagen;
+          }
+        }
+      %>
+      <img src="<%= imagenUrl %>" alt="<%= p.nombre %>" loading="lazy">
       <h3><%= p.nombre %></h3>
       <p><%= p.descripcion %></p>
       <div class="precio">$<%= p.precio %></div>

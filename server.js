@@ -98,13 +98,42 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// ================== FUNCIONES AUXILIARES ==================
+function asignarImagenesPorDefecto(productos) {
+  const imagenesDefault = {
+    'aretes': '/images/aretes.jpg',
+    'collar': '/images/collar.jpg',
+    'anillo': '/images/anillo.jpg',
+    'pulsera': '/images/pulsera.jpg'
+  };
+
+  return productos.map(p => {
+    if (!p.imagen) {
+      const nombreLower = p.nombre.toLowerCase();
+      for (const [clave, ruta] of Object.entries(imagenesDefault)) {
+        if (nombreLower.includes(clave)) {
+          p.imagen = ruta;
+          break;
+        }
+      }
+      // Si no hay coincidencia, asignar imagen aleatoria o placeholder
+      if (!p.imagen) {
+        const keys = Object.keys(imagenesDefault);
+        p.imagen = imagenesDefault[keys[Math.floor(Math.random() * keys.length)]];
+      }
+    }
+    return p;
+  });
+}
+
 // ================== INICIO / TIENDA ==================
 app.get('/inicio', auth, async (req, res) => {
   try {
     const [productos] = await db.promise().query('SELECT * FROM productos');
+    const productosConImagenes = asignarImagenesPorDefecto(productos || []);
 
     res.render('tienda', {
-      productos: productos || [],
+      productos: productosConImagenes,
       usuario: req.session.usuario
     });
 

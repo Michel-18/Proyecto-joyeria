@@ -115,15 +115,21 @@
       <% productos.forEach(p => { %>
         <div class="card">
 
-          <% if (p.imagen) { %>
+          <% if (p.imagen && p.imagen.includes('/')) { %>
             <img 
               src="<%= p.imagen %>" 
               alt="Producto <%= p.nombre %>" 
               loading="lazy"
             >
+          <% } else if (p.imagen) { %>
+            <img 
+              src="/images/<%= p.imagen %>" 
+              alt="Producto <%= p.nombre %>" 
+              loading="lazy"
+            >
           <% } else { %>
             <img 
-              src="https://via.placeholder.com/300x180?text=Jewelry+Girl" 
+              src="https://via.placeholder.com/300x180?text=<%= p.nombre %>" 
               alt="Producto sin imagen" 
               loading="lazy"
             >
