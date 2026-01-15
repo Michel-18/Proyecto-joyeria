@@ -8,14 +8,17 @@ const mysql = require('mysql2/promise');
 const app = express();
 
 // ==============================
-// CONEXIÓN A MYSQL (XAMPP)
+// MYSQL (POOL)
 // ==============================
 const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '',
   database: 'Jewerly_girl',
-  port: 3306
+  port: 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
 // ==============================
@@ -25,165 +28,224 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'secreto_jewelry',
+  secret: 'secreto_jewelry',
   resave: false,
   saveUninitialized: true
 }));
 
+// ==============================
+// EJS + ESTÁTICOS
+// ==============================
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ==============================
-// RUTAS PÚBLICAS
+// AUTH
 // ==============================
-app.get('/', (req, res) => {
-  res.render('bienvenida', { titulo: 'Bienvenida a Jewelry Girl 💎' });
-});
+function auth(req, res, next) {
+  if (!req.session.userId) return res.redirect('/login');
+  next();
+}
 
-app.get('/login', (req, res) => {
-  res.render('login', { titulo: 'Iniciar Sesión' });
-});
+// ==============================
+// RUTAS GENERALES
+// ==============================
+app.get('/', (req, res) =>
+  res.render('bienvenida', { titulo: 'Bienvenida' })
+);
 
-app.get('/registro', (req, res) => {
-  res.render('registro', { titulo: 'Registro' });
-});
+app.get('/login', (req, res) =>
+  res.render('login', { titulo: 'Iniciar sesión' })
+);
 
-app.get('/inicio', (req, res) => {
-  res.render('inicio', { titulo: 'Inicio' });
-});
+app.get('/registro', (req, res) =>
+  res.render('registro', { titulo: 'Registro' })
+);
 
-app.get('/ofertas', (req, res) => {
-  const carrito = req.session.carrito || [];
+app.get('/inicio', auth, (req, res) =>
+  res.render('inicio', { titulo: 'Inicio' })
+);
+
+app.get('/tienda', auth, (req, res) =>
+  res.render('tienda', { titulo: 'Tienda' })
+);
+
+app.get('/ofertas', auth, (req, res) =>
   res.render('ofertas', {
     titulo: 'Ofertas',
-    reemplazar: req.query.reemplazar || null,
-    carrito
-  });
-});
+    carrito: req.session.carrito || [],
+    reemplazar: req.query.reemplazar || null
+  })
+);
+
+app.get('/consulta', auth, (req, res) =>
+  res.render('consulta', {
+    titulo: 'Carrito',
+    carrito: req.session.carrito || []
+  })
+);
 
 // ==============================
-// REGISTRO
+// CARRITO
 // ==============================
-app.post('/registro', async (req, res) => {
-  try {
-    const { nombre, correo, password } = req.body;
-    const hashed = await bcrypt.hash(password, 10);
-
-    await pool.query(
-      'INSERT INTO registro (nombre, correo, password) VALUES (?, ?, ?)',
-      [nombre, correo.toLowerCase(), hashed]
-    );
-
-    res.redirect('/login');
-  } catch (error) {
-    console.error(error);
-    res.send('Error al registrar usuario');
-  }
-});
-
-// ==============================
-// LOGIN
-// ==============================
-app.post('/login', async (req, res) => {
-  try {
-    const { correo, password } = req.body;
-    const [rows] = await pool.query(
-      'SELECT * FROM registro WHERE correo = ?',
-      [correo.toLowerCase()]
-    );
-
-    if (rows.length === 0) return res.send('Correo no registrado');
-
-    const user = rows[0];
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) return res.send('Contraseña incorrecta');
-
-    req.session.userId = user.id;
-    req.session.userNombre = user.nombre;
-
-    res.redirect('/inicio');
-  } catch (error) {
-    console.error(error);
-    res.send('Error al iniciar sesión');
-  }
-});
-
-// ==============================
-// PERFIL PROTEGIDO
-// ==============================
-app.get('/perfil', (req, res) => {
-  if (!req.session.userId) return res.redirect('/login');
-  res.send(`Bienvenido ${req.session.userNombre}`);
-});
-
-// ==============================
-// CARRITO (SIN EDITAR PRECIO/NOMBRE)
-// ==============================
-
-// Agregar producto normal
-app.post('/agregar-carrito', (req, res) => {
-  const { nombre, precio } = req.body;
+app.get('/carrito/agregar', auth, (req, res) => {
+  const { nombre, precio, reemplazar } = req.query;
 
   if (!req.session.carrito) req.session.carrito = [];
 
-  const id = Date.now(); // ID único real
-  req.session.carrito.push({ id, nombre, precio: Number(precio) });
-
-  res.redirect('/consulta');
-});
-
-// Mostrar carrito
-app.get('/consulta', (req, res) => {
-  const carrito = req.session.carrito || [];
-  res.render('consulta', {
-    titulo: 'Tu Carrito',
-    carrito
-  });
-});
-
-// Reemplazar producto
-app.get('/carrito/reemplazar', (req, res) => {
-  const { viejoId, nombre, precio } = req.query;
-
-  if (!req.session.carrito) return res.redirect('/consulta');
-
-  // eliminar producto viejo
-  req.session.carrito = req.session.carrito.filter(
-    p => p.id !== Number(viejoId)
-  );
-
-  // agregar nuevo producto
-  req.session.carrito.push({
+  const nuevo = {
     id: Date.now(),
     nombre,
     precio: Number(precio)
-  });
+  };
+
+  if (reemplazar) {
+    const i = req.session.carrito.findIndex(p => p.id == reemplazar);
+    if (i !== -1) req.session.carrito[i] = nuevo;
+  } else {
+    req.session.carrito.push(nuevo);
+  }
 
   res.redirect('/consulta');
 });
 
-// Eliminar producto
-app.post('/consulta/eliminar/:id', (req, res) => {
+app.post('/consulta/eliminar/:id', auth, (req, res) => {
   const id = Number(req.params.id);
-
-  if (!req.session.carrito) return res.redirect('/consulta');
-
-  req.session.carrito = req.session.carrito.filter(p => p.id !== id);
+  req.session.carrito = (req.session.carrito || []).filter(p => p.id !== id);
   res.redirect('/consulta');
 });
 
 // ==============================
-// 404
+// PAGO
 // ==============================
-app.use((req, res) => {
-  res.status(404).send('404 - Página no encontrada');
+app.post('/comprar', auth, (req, res) => res.redirect('/pago'));
+
+app.get('/pago', auth, (req, res) => {
+  const carrito = req.session.carrito || [];
+  const total = carrito.reduce((s, p) => s + p.precio, 0);
+
+  res.render('pagotarjeta', {
+    titulo: 'Pago con tarjeta',
+    carrito,
+    total
+  });
 });
 
 // ==============================
-// INICIAR SERVIDOR
+// PAGOTARJETA (TRANSACCIÓN)
 // ==============================
-const PORT = process.env.PORT || 9999;
-app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+app.post('/pagotarjeta', auth, async (req, res) => {
+  const conn = await pool.getConnection();
+
+  try {
+    const { nombre, numero } = req.body;
+    const carrito = req.session.carrito || [];
+    const total = carrito.reduce((s, p) => s + p.precio, 0);
+
+    if (!carrito.length) return res.redirect('/consulta');
+
+    await conn.beginTransaction();
+
+    const [pago] = await conn.query(
+      'INSERT INTO pagos (usuario_id, total, metodo, tarjeta, nombre) VALUES (?, ?, ?, ?, ?)',
+      [req.session.userId, total, 'Tarjeta', numero.slice(-4), nombre]
+    );
+
+    const detalle = carrito.map(p => `${p.nombre} $${p.precio}`).join(', ');
+
+    await conn.query(
+      'INSERT INTO tickets (pago_id, detalle, total) VALUES (?, ?, ?)',
+      [pago.insertId, detalle, total]
+    );
+
+    await conn.commit();
+
+    req.session.carrito = [];
+    res.redirect(`/ticket/${pago.insertId}`);
+
+  } catch (error) {
+    await conn.rollback();
+    console.error('❌ Error en pago:', error);
+    res.status(500).send('Error procesando el pago');
+  } finally {
+    conn.release();
+  }
 });
+
+// ==============================
+// VER TICKET INDIVIDUAL
+// ==============================
+app.get('/ticket/:id', auth, async (req, res) => {
+  const [rows] = await pool.query(
+    'SELECT * FROM tickets WHERE pago_id = ?',
+    [req.params.id]
+  );
+
+  if (!rows.length) return res.send('Ticket no encontrado');
+
+  res.render('ticket', {
+    titulo: 'Ticket de compra',
+    ticket: rows[0]
+  });
+});
+
+// ==============================
+// LISTAR TICKETS DEL USUARIO
+// ==============================
+app.get('/tickets', auth, async (req, res) => {
+  const [rows] = await pool.query(`
+    SELECT 
+      t.id,
+      t.pago_id,
+      t.detalle,
+      t.total
+    FROM tickets t
+    INNER JOIN pagos p ON t.pago_id = p.id
+    WHERE p.usuario_id = ?
+    ORDER BY t.id DESC
+  `, [req.session.userId]);
+
+  res.render('tickets', {
+    titulo: 'Mis tickets',
+    tickets: rows
+  });
+});
+
+// ==============================
+// LOGIN / REGISTRO
+// ==============================
+app.post('/registro', async (req, res) => {
+  const hash = await bcrypt.hash(req.body.password, 10);
+
+  await pool.query(
+    'INSERT INTO registro (nombre, correo, password) VALUES (?, ?, ?)',
+    [req.body.nombre, req.body.correo.toLowerCase(), hash]
+  );
+
+  res.redirect('/login');
+});
+
+app.post('/login', async (req, res) => {
+  const [rows] = await pool.query(
+    'SELECT * FROM registro WHERE correo = ?',
+    [req.body.correo.toLowerCase()]
+  );
+
+  if (!rows.length) return res.send('Usuario no encontrado');
+
+  const ok = await bcrypt.compare(req.body.password, rows[0].password);
+  if (!ok) return res.send('Contraseña incorrecta');
+
+  req.session.userId = rows[0].id;
+  res.redirect('/inicio');
+});
+
+app.get('/logout', (req, res) =>
+  req.session.destroy(() => res.redirect('/login'))
+);
+
+// ==============================
+app.listen(9999, () =>
+  console.log('✅ Servidor en http://localhost:9999')
+);

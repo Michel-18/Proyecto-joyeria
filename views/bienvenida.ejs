@@ -9,13 +9,88 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/css/bienvenida.css">
+
+  <style>
+    /* Estilos generales */
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #faf4f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      max-width: 500px;
+    }
+
+    .subtitulo {
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .titulo {
+      font-family: 'Dancing Script', cursive;
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #ff69b4; /* rosa brillante */
+    }
+
+    .descripcion {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    /* Botones */
+    .contenedor-botones {
+      display: flex;
+      flex-direction: column;
+      gap: 15px; /* espacio entre botones */
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 25px;
+      font-size: 16px;
+      text-decoration: none;
+      color: white;
+      background-color: #ff69b4;
+      border-radius: 8px;
+      transition: 0.3s;
+      width: 80%;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background-color: #ff85c1;
+    }
+
+    /* Botón de administrador */
+    .admin-btn {
+      background-color: #ff7f50; /* color diferente para admin */
+    }
+
+    .admin-btn:hover {
+      background-color: #ff9966;
+    }
+  </style>
 </head>
 <body>
 
   <div class="container">
     <h3 class="subtitulo">BIENVENIDA</h3>
 
-    <!-- Título en cursiva -->
     <h1 class="titulo">JEWELRY GIRL</h1>
 
     <p class="descripcion">
@@ -23,9 +98,11 @@
       para reflejar su esencia y acompañarte en cada momento especial.
     </p>
 
+    <!-- BOTONES PRINCIPALES -->
     <div class="contenedor-botones">
       <a href="/login" class="btn">Iniciar sesión</a>
       <a href="/registro" class="btn">Crear cuenta</a>
+      <a href="/admin/login" class="btn admin-btn">Acceso administrador</a>
     </div>
   </div>
 

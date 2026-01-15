@@ -3,19 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <title>Tu carrito</title>
+
 <style>
 body {
   background:#fef6f7;
-  font-family:Segoe UI;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding:20px;
 }
+
 .contenedor {
   max-width:700px;
   margin:auto;
   background:#fff0f5;
   padding:30px;
   border-radius:12px;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
+
+h1 {
+  text-align:center;
+}
+
 .item {
   background:#fde8f0;
   padding:12px;
@@ -23,41 +31,81 @@ body {
   border-radius:8px;
   display:flex;
   justify-content:space-between;
+  align-items:center;
 }
+
+.botones {
+  display:flex;
+  gap:6px;
+}
+
 button {
   border:none;
   padding:6px 10px;
   border-radius:6px;
   cursor:pointer;
+  font-size:14px;
 }
-.editar { background:#d36a94; color:white; }
-.eliminar { background:#ff7f7f; color:white; }
+
+.editar {
+  background:#d36a94;
+  color:white;
+}
+
+.eliminar {
+  background:#ff7f7f;
+  color:white;
+}
+
 .total {
   text-align:right;
   font-weight:bold;
+  font-size:18px;
   margin-top:20px;
 }
-a { text-decoration:none; }
+
+.comprar {
+  width:100%;
+  margin-top:15px;
+  background:#d36a94;
+  color:white;
+  padding:12px;
+  font-size:16px;
+  border-radius:8px;
+}
+
+a {
+  text-decoration:none;
+  color:#d36a94;
+  font-weight:bold;
+}
 </style>
 </head>
+
 <body>
 
 <div class="contenedor">
 <h1>🛍️ Tu carrito</h1>
 
-<% if (carrito.length === 0) { %>
-  <p>Tu carrito está vacío</p>
+<% if (!carrito || carrito.length === 0) { %>
+
+  <p style="text-align:center">Tu carrito está vacío</p>
+
 <% } else { %>
 
   <% carrito.forEach(item => { %>
     <div class="item">
-      <span><%= item.nombre %> - $<%= item.precio %></span>
-      <div>
+      <span>
+        <strong><%= item.nombre %></strong> — $<%= item.precio %>
+      </span>
+
+      <div class="botones">
         <a href="/ofertas?reemplazar=<%= item.id %>">
-          <button class="editar">🔄 Cambiar</button>
+          <button type="button" class="editar">🔄 Cambiar</button>
         </a>
-        <form action="/consulta/eliminar/<%= item.id %>" method="POST" style="display:inline">
-          <button class="eliminar">🗑️</button>
+
+        <form action="/consulta/eliminar/<%= item.id %>" method="POST">
+          <button type="submit" class="eliminar">🗑️</button>
         </form>
       </div>
     </div>
@@ -65,13 +113,17 @@ a { text-decoration:none; }
 
   <div class="total">
     Total: $
-    <%= carrito.reduce((s,p)=>s+p.precio,0) %>
+    <%= carrito.reduce((s, p) => s + p.precio, 0) %>
   </div>
+
+  <form action="/comprar" method="POST">
+    <button type="submit" class="comprar">💳 Comprar</button>
+  </form>
 
 <% } %>
 
 <br>
-<a href="/ofertas">← Seguir comprando</a>
+<a href="/inicio">← Seguir comprando</a>
 </div>
 
 </body>

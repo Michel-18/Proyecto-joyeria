@@ -8,48 +8,51 @@
 </head>
 <body>
 
-  <header>
-    <h1>💎 Ofertas Jewelry Girl 💎</h1>
-    <nav>
-      <a href="/inicio" class="btn-azul">Volver al inicio</a>
-    </nav>
-  </header>
+<header>
+  <h1>💎 Ofertas Jewelry Girl 💎</h1>
+  <nav>
+    <a href="/inicio" class="btn-azul">Volver al inicio</a>
+    <a href="/consulta" class="btn-azul">🛍️ Ver carrito</a>
+  </nav>
+</header>
 
-  <main>
-    <section class="productos">
-      <h2>Promociones de la semana</h2>
+<main>
+  <section class="productos">
+    <h2>Promociones de la semana</h2>
 
-      <div class="grid">
+    <div class="grid">
 
-        <!-- PRODUCTO 1 -->
-        <div class="producto">
-          <img src="/images/aretes.svg" alt="Aretes">
-          <p><strong>Aretes en oferta</strong></p>
-          <p>Antes: <del>$50</del> | Ahora: $35</p>
+      <!-- PRODUCTO 1 -->
+      <div class="producto">
+        <img src="/images/aretes.svg" alt="Aretes">
+        <p><strong>Aretes en oferta</strong></p>
+        <p>Antes: <del>$50</del> | Ahora: $35</p>
 
-          <form action="/agregar-carrito" method="POST">
-            <input type="hidden" name="nombre" value="Aretes en oferta">
-            <input type="hidden" name="precio" value="35">
-            <button type="submit" class="btn-carrito">🛒 Añadir</button>
-          </form>
-        </div>
-
-        <!-- PRODUCTO 2 -->
-        <div class="producto">
-          <img src="/images/collar.svg" alt="Collar">
-          <p><strong>Collar en oferta</strong></p>
-          <p>Antes: <del>$80</del> | Ahora: $60</p>
-
-          <form action="/agregar-carrito" method="POST">
-            <input type="hidden" name="nombre" value="Collar en oferta">
-            <input type="hidden" name="precio" value="60">
-            <button type="submit" class="btn-carrito">🛒 Añadir</button>
-          </form>
-        </div>
-
+        <a
+          href="/carrito/agregar?nombre=Aretes en oferta&precio=35<%= reemplazar ? '&reemplazar=' + reemplazar : '' %>">
+          <button class="btn-carrito">
+            <%= reemplazar ? '🔄 Cambiar por este' : '🛒 Añadir' %>
+          </button>
+        </a>
       </div>
-    </section>
-  </main>
+
+      <!-- PRODUCTO 2 -->
+      <div class="producto">
+        <img src="/images/collar.svg" alt="Collar">
+        <p><strong>Collar en oferta</strong></p>
+        <p>Antes: <del>$80</del> | Ahora: $60</p>
+
+        <a
+          href="/carrito/agregar?nombre=Collar en oferta&precio=60<%= reemplazar ? '&reemplazar=' + reemplazar : '' %>">
+          <button class="btn-carrito">
+            <%= reemplazar ? '🔄 Cambiar por este' : '🛒 Añadir' %>
+          </button>
+        </a>
+      </div>
+
+    </div>
+  </section>
+</main>
 
 </body>
 </html>

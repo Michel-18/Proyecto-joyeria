@@ -8,7 +8,23 @@ body {
   color: #000000; /* TEXTO NEGRO */
   margin: 0;
   padding: 0;
-  height: 100vh;
+  height: 100vh;.admin-access {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.admin-access a {
+  font-size: 12px;
+  color: #999;
+  text-decoration: none;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+}
+
+.admin-access a:hover {
+  color: #c2185b;
+}
+
   display: flex;
   flex-direction: column;
   justify-content: center;

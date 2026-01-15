@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Método de pago</title>
+<style>
+body {
+  background:#fef6f7;
+  font-family:Segoe UI;
+  padding:20px;
+}
+.contenedor {
+  max-width:500px;
+  margin:auto;
+  background:#fff0f5;
+  padding:30px;
+  border-radius:12px;
+}
+button {
+  width:100%;
+  margin:10px 0;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:#d36a94;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="contenedor">
+<h1>💳 Método de pago</h1>
+
+<p>Total a pagar: <strong>$<%= total %></strong></p>
+
+<button>💳 Tarjeta</button>
+<button>💵 Pago en efectivo</button>
+
+<br><br>
+<a href="/consulta">← Volver al carrito</a>
+</div>
+
+</body>
+</html>

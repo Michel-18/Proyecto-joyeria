@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title><%= titulo %></title>
+  <style>
+    body {
+      background:#fef6f7;
+      font-family:Segoe UI, sans-serif;
+      padding:20px;
+    }
+    .contenedor {
+      max-width:500px;
+      margin:auto;
+      background:#fff;
+      padding:25px;
+      border-radius:12px;
+      box-shadow:0 8px 20px rgba(0,0,0,.1);
+    }
+    h2 { text-align:center; }
+    .total {
+      font-size:18px;
+      font-weight:bold;
+      margin:15px 0;
+    }
+    input, button {
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+    }
+    button {
+      background:#e91e63;
+      color:white;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="contenedor">
+  <h2>Pago con tarjeta</h2>
+
+  <p class="total">Total: $<%= total %></p>
+
+  <form method="POST" action="/pagotarjeta">
+    <input type="text" name="nombre" placeholder="Nombre en la tarjeta" required>
+    <input type="text" name="numero" placeholder="Número de tarjeta" required>
+    <input type="text" name="vencimiento" placeholder="MM/AA" required>
+    <input type="text" name="cvv" placeholder="CVV" required>
+
+    <button type="submit">Pagar</button>
+  </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title><%= titulo %></title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .ticket {
+      background: #fff;
+      width: 320px;
+      margin: 20px auto;
+      padding: 15px;
+      border: 1px dashed #999;
+    }
+
+    .detalle {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .total {
+      font-weight: bold;
+      border-top: 1px dashed #000;
+      padding-top: 8px;
+    }
+
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      text-decoration: none;
+      color: #c2185b;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧾 Mis tickets</h1>
+
+<% if (!tickets.length) { %>
+  <p style="text-align:center;">No tienes compras registradas</p>
+<% } %>
+
+<% tickets.forEach(ticket => { %>
+  <div class="ticket">
+    <div class="detalle">
+      <%= ticket.detalle %>
+    </div>
+
+    <div class="total">
+      Total: $<%= ticket.total %>
+    </div>
+
+    <a href="/ticket/<%= ticket.pago_id %>">Ver ticket</a>
+  </div>
+<% }) %>
+
+<a href="/inicio">🏠 Volver al inicio</a>
+
+</body>
+</html>
