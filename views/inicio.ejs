@@ -55,12 +55,26 @@
 
     <div class="card">
 
-      <!-- IMAGEN CORRECTA -->
-      <img 
-  src="/images/<%= p.id %>.jpg"
-  alt="<%= p.nombre %>"
-  onerror="this.src='/images/default.jpg'"
->
+          <% if (p.imagen && p.imagen.includes('/')) { %>
+            <img 
+              src="<%= p.imagen %>" 
+              alt="Producto <%= p.nombre %>" 
+              loading="lazy"
+            >
+          <% } else if (p.imagen) { %>
+            <img 
+              src="/images/<%= p.imagen %>" 
+              alt="Producto <%= p.nombre %>" 
+              loading="lazy"
+            >
+          <% } else { %>
+            <img 
+              src="https://via.placeholder.com/300x180?text=<%= p.nombre %>" 
+              alt="Producto sin imagen" 
+              loading="lazy"
+            >
+          <% } %>
+>>>>>>> bdce91121ec916b762c45293d90bf70a29a64ea7
 
 
       <h3><%= p.nombre %></h3>
