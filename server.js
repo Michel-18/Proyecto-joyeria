@@ -18,12 +18,12 @@ app.use(session({
   saveUninitialized: false
 }));
 
-// ================== DB ==================
+// ================== DB (MYSQL LOCAL CORRECTO) ==================
 const db = mysql.createPool({
-  host: 'sql3.freesqldatabase.com',
-  user: 'sql3814404',
-  password: 'ldvmce7MY1',
-  database: 'sql3814404'
+  host: 'localhost',
+  user: 'root',
+  password: '', // si tu MySQL tiene password, colócalo aquí
+  database: 'Jewerly_girl'
 });
 
 // ================== MIDDLEWARE ==================
@@ -36,11 +36,7 @@ function auth(req, res, next) {
 
 // ================== RUTA RAÍZ ==================
 app.get('/', (req, res) => {
-  if (req.session.usuario) {
-    res.redirect('/inicio');
-  } else {
-    res.redirect('/login');
-  }
+  req.session.usuario ? res.redirect('/inicio') : res.redirect('/login');
 });
 
 // ================== LOGIN ==================
@@ -53,14 +49,19 @@ app.post('/login', async (req, res) => {
 
   try {
     const [rows] = await db.promise().query(
-      'SELECT * FROM registro WHERE correo = ? AND password = ?',
+      'SELECT * FROM registro WHERE correo = ? AND contrasena = ?',
       [correo, password]
     );
 
-    if (rows.length === 0) return res.redirect('/login');
+    if (rows.length === 0) {
+      return res.render('login', {
+        titulo: 'Login',
+        error: 'Correo o contraseña incorrectos'
+      });
+    }
 
     req.session.usuario = rows[0];
-    req.session.carrito = req.session.carrito || [];
+    req.session.carrito = [];
 
     res.redirect('/inicio');
 
@@ -79,10 +80,23 @@ app.post('/registro', async (req, res) => {
   const { nombre, correo, password } = req.body;
 
   try {
+    const [existe] = await db.promise().query(
+      'SELECT id FROM registro WHERE correo = ?',
+      [correo]
+    );
+
+    if (existe.length > 0) {
+      return res.render('registro', {
+        titulo: 'Registro',
+        error: 'Este correo ya está registrado'
+      });
+    }
+
     await db.promise().query(
-      'INSERT INTO registro (nombre, correo, password) VALUES (?, ?, ?)',
+      'INSERT INTO registro (nombre, correo, contrasena) VALUES (?, ?, ?)',
       [nombre, correo, password]
     );
+
     res.redirect('/login');
 
   } catch (error) {
@@ -93,9 +107,7 @@ app.post('/registro', async (req, res) => {
 
 // ================== LOGOUT ==================
 app.get('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.redirect('/login');
-  });
+  req.session.destroy(() => res.redirect('/login'));
 });
 
 // ================== INICIO / TIENDA ==================
@@ -104,7 +116,7 @@ app.get('/inicio', auth, async (req, res) => {
     const [productos] = await db.promise().query('SELECT * FROM productos');
 
     res.render('tienda', {
-      productos: productos || [],
+      productos,
       usuario: req.session.usuario
     });
 
@@ -125,7 +137,10 @@ app.get('/carrito/agregar/:id', auth, async (req, res) => {
       [id]
     );
 
-    if (rows.length > 0) req.session.carrito.push(rows[0]);
+    if (rows.length > 0) {
+      req.session.carrito.push(rows[0]);
+    }
+
     res.redirect('/consulta');
 
   } catch (error) {
@@ -136,41 +151,41 @@ app.get('/carrito/agregar/:id', auth, async (req, res) => {
 
 // ================== VER CARRITO ==================
 app.get('/consulta', auth, (req, res) => {
-  res.render('consulta', { carrito: req.session.carrito || [] });
+  res.render('consulta', {
+    carrito: req.session.carrito
+  });
 });
 
 // ================== ELIMINAR DEL CARRITO ==================
 app.post('/consulta/eliminar/:id', auth, (req, res) => {
   const id = parseInt(req.params.id);
-  req.session.carrito = (req.session.carrito || []).filter(p => p.id !== id);
+  req.session.carrito = req.session.carrito.filter(p => p.id !== id);
   res.redirect('/consulta');
 });
 
 // ================== COMPRAR ==================
 app.post('/comprar', auth, async (req, res) => {
-  const carrito = req.session.carrito || [];
+  const carrito = req.session.carrito;
   if (carrito.length === 0) return res.redirect('/consulta');
 
   const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
   const usuario_id = req.session.usuario.id;
 
   try {
-    // Guardar venta
     const [venta] = await db.promise().query(
       'INSERT INTO ventas (usuario_id, total, fecha) VALUES (?, ?, NOW())',
       [usuario_id, total]
     );
+
     const venta_id = venta.insertId;
 
-    // Guardar detalle de venta
-    for (let item of carrito) {
+    for (const item of carrito) {
       await db.promise().query(
         'INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio) VALUES (?, ?, ?, ?)',
         [venta_id, item.id, 1, item.precio]
       );
     }
 
-    // Limpiar carrito
     req.session.carrito = [];
     res.redirect('/tickets');
 
@@ -183,13 +198,13 @@ app.post('/comprar', auth, async (req, res) => {
 // ================== TICKETS ==================
 app.get('/tickets', auth, async (req, res) => {
   try {
-    const usuario_id = req.session.usuario.id;
     const [ventas] = await db.promise().query(
       'SELECT * FROM ventas WHERE usuario_id = ? ORDER BY fecha DESC',
-      [usuario_id]
+      [req.session.usuario.id]
     );
 
     res.render('tickets', { ventas });
+
   } catch (error) {
     console.error(error);
     res.send('Error al cargar tickets');

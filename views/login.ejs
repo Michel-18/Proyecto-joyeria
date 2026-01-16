@@ -36,6 +36,11 @@ button {
   background: #d36a94;
   color: white;
   font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #ccc;
 }
 
 a {
@@ -45,6 +50,25 @@ a {
   color: #c2185b;
 }
 </style>
+
+<script>
+function entrar() {
+  const correo = document.querySelector('input[name="correo"]').value.trim();
+  const password = document.querySelector('input[name="password"]').value.trim();
+  const boton = document.getElementById('btnEntrar');
+
+  if (correo === '' || password === '') {
+    alert('Por favor llena todos los campos');
+    return false; // ❌ no envía
+  }
+
+  // Evita doble clic
+  boton.disabled = true;
+  boton.innerText = 'Entrando...';
+
+  return true; // ✅ envía el formulario a /login
+}
+</script>
 </head>
 
 <body>
@@ -52,10 +76,10 @@ a {
 <main>
 <h1>JEWELRY</h1>
 
-<form method="POST" action="/login">
+<form method="POST" action="/login" onsubmit="return entrar()">
   <input type="email" name="correo" placeholder="Correo" required>
   <input type="password" name="password" placeholder="Contraseña" required>
-  <button>Entrar</button>
+  <button id="btnEntrar" type="submit">Entrar</button>
 </form>
 
 <a href="/registro">Registrarse</a>

@@ -2,26 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Tienda | Jewelry Girl</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 
   <style>
     body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
+      font-family: Arial;
       background: #faf4f7;
       padding: 30px;
     }
 
     h1 {
       text-align: center;
-      font-family: 'Dancing Script', cursive;
-      font-size: 3rem;
       color: #c2185b;
-      margin-bottom: 30px;
     }
 
     .productos {
@@ -34,122 +26,57 @@
 
     .card {
       background: #fff;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,.1);
       padding: 20px;
+      border-radius: 15px;
       text-align: center;
-      transition: transform .3s;
+      box-shadow: 0 8px 20px rgba(0,0,0,.1);
     }
 
-    .card:hover {
-      transform: translateY(-5px);
-    }
-
-    .card img {
+    img {
       width: 100%;
       height: 180px;
       object-fit: cover;
       border-radius: 10px;
-      margin-bottom: 15px;
-    }
-
-    .nombre {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-
-    .descripcion {
-      font-size: .95rem;
-      color: #666;
       margin-bottom: 10px;
     }
 
     .precio {
-      font-size: 1.1rem;
-      font-weight: bold;
       color: #e91e63;
-      margin-bottom: 15px;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 10px 22px;
-      background: #e91e63;
-      color: white;
-      border-radius: 20px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: .3s;
-    }
-
-    .btn:hover {
-      background: #ff6090;
-    }
-
-    .volver {
-      display: block;
-      text-align: center;
-      margin-top: 30px;
-      text-decoration: none;
-      color: #c2185b;
       font-weight: bold;
-    }
-
-    .empty {
-      text-align: center;
-      color: #777;
-      font-size: 1.1rem;
     }
   </style>
 </head>
 <body>
 
-  <h1>Nuestra Tienda 💎</h1>
+<h1>Nuestra Tienda 💎</h1>
 
-  <% if (!productos || productos.length === 0) { %>
-    <p class="empty">No hay productos disponibles por el momento</p>
-  <% } else { %>
+<div class="productos">
+  <% productos.forEach(p => { %>
 
-    <div class="productos">
-      <% productos.forEach(p => { %>
-        <div class="card">
+    <div class="card">
 
-          <% if (p.imagen) { %>
-            <img 
-              src="<%= p.imagen %>" 
-              alt="Producto <%= p.nombre %>" 
-              loading="lazy"
-            >
-          <% } else { %>
-            <img 
-              src="https://via.placeholder.com/300x180?text=Jewelry+Girl" 
-              alt="Producto sin imagen" 
-              loading="lazy"
-            >
-          <% } %>
+      <!-- IMAGEN CORRECTA -->
+      <img 
+  src="/images/<%= p.id %>.jpg"
+  alt="<%= p.nombre %>"
+  onerror="this.src='/images/default.jpg'"
+>
 
-          <div class="nombre"><%= p.nombre %></div>
 
-          <% if (p.descripcion) { %>
-            <div class="descripcion"><%= p.descripcion %></div>
-          <% } %>
+      <h3><%= p.nombre %></h3>
 
-          <div class="precio">
-            $<%= Number(p.precio).toFixed(2) %>
-          </div>
+      <div class="precio">
+        $<%= Number(p.precio).toFixed(2) %>
+      </div>
 
-          <a href="/carrito/agregar/<%= p.id %>" class="btn">
-            🛒 Agregar al carrito
-          </a>
+      <a href="/carrito/agregar/<%= p.id %>">
+        🛒 Agregar
+      </a>
 
-        </div>
-      <% }) %>
     </div>
 
-  <% } %>
-
-  <a href="/inicio" class="volver">⬅ Volver al inicio</a>
+  <% }) %>
+</div>
 
 </body>
 </html>
