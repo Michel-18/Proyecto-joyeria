@@ -47,11 +47,6 @@ nav a {
   padding: 20px;
   box-shadow: 0 8px 18px rgba(0,0,0,.1);
   text-align: center;
-  transition: transform .3s;
-}
-
-.card:hover {
-  transform: translateY(-5px);
 }
 
 .card img {
@@ -59,16 +54,6 @@ nav a {
   height: 180px;
   object-fit: cover;
   border-radius: 12px;
-}
-
-.card h3 {
-  color: #c2185b;
-  margin: 15px 0 5px;
-}
-
-.card p {
-  color: #555;
-  font-size: .95rem;
 }
 
 .precio {
@@ -87,10 +72,6 @@ nav a {
   text-decoration: none;
   font-weight: 600;
 }
-
-.btn:hover {
-  background: #ff6090;
-}
 </style>
 </head>
 
@@ -106,25 +87,41 @@ nav a {
 </header>
 
 <section class="productos">
-  <% productos.forEach(p => { %>
-    <div class="card">
-      <% 
-        let imagenUrl = 'https://via.placeholder.com/300x180?text=' + encodeURIComponent(p.nombre);
-        if (p.imagen) {
-          if (p.imagen.includes('/') || p.imagen.includes('http')) {
-            imagenUrl = p.imagen;
-          } else {
-            imagenUrl = '/images/' + p.imagen;
-          }
-        }
-      %>
-      <img src="<%= imagenUrl %>" alt="<%= p.nombre %>" loading="lazy">
-      <h3><%= p.nombre %></h3>
-      <p><%= p.descripcion %></p>
-      <div class="precio">$<%= p.precio %></div>
-      <a href="/carrito/agregar/<%= p.id %>" class="btn">🛒 Agregar</a>
-    </div>
-  <% }) %>
+
+  <% if (productos && productos.length > 0) { %>
+
+    <% productos.forEach(p => { %>
+      <div class="card">
+
+        <!-- Imagen con respaldo -->
+        <img 
+          src="<%= p.imagen && p.imagen.trim() !== '' ? p.imagen : '/images/default.jpg' %>" 
+          alt="<%= p.nombre %>"
+          onerror="this.src='/images/default.jpg'"
+        >
+
+        <h3><%= p.nombre %></h3>
+
+        <p><%= p.descripcion || '' %></p>
+
+        <div class="precio">
+          $<%= Number(p.precio || 0).toFixed(2) %>
+        </div>
+
+        <a href="/carrito/agregar/<%= p.id %>" class="btn">
+          🛒 Agregar
+        </a>
+      </div>
+    <% }) %>
+
+  <% } else { %>
+
+    <p style="text-align:center; font-size:1.2rem;">
+      No hay productos disponibles.
+    </p>
+
+  <% } %>
+
 </section>
 
 </body>

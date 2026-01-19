@@ -29,6 +29,11 @@ button {
   border-radius: 25px;
   border: none;
   font-size: 1rem;
+  cursor: pointer;
+}
+
+.efectivo {
+  background: #c2185b;
 }
 
 a {
@@ -47,8 +52,15 @@ a {
 <h1>💳 Pago</h1>
 <p>Total: <strong>$<%= total %></strong></p>
 
-<button>Tarjeta</button>
-<button>Efectivo</button>
+<!-- TARJETA -->
+<form action="/pagotarjeta" method="GET">
+  <button type="submit">Pagar con tarjeta</button>
+</form>
+
+<!-- EFECTIVO -->
+<form action="/comprar" method="POST">
+  <button type="submit" class="efectivo">Pagar en efectivo</button>
+</form>
 
 <a href="/consulta">← Volver</a>
 </div>

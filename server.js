@@ -18,19 +18,17 @@ app.use(session({
   saveUninitialized: false
 }));
 
-// ================== DB (MYSQL LOCAL CORRECTO) ==================
+// ================== DB ==================
 const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
-  password: '', // si tu MySQL tiene password, colócalo aquí
-  database: 'Jewerly_girl'
+  password: '',
+  database: 'jewerly_girl'
 });
 
-// ================== MIDDLEWARE ==================
+// ================== AUTH ==================
 function auth(req, res, next) {
-  if (!req.session.usuario) {
-    return res.redirect('/login');
-  }
+  if (!req.session.usuario) return res.redirect('/login');
   next();
 }
 
@@ -47,62 +45,21 @@ app.get('/login', (req, res) => {
 app.post('/login', async (req, res) => {
   const { correo, password } = req.body;
 
-  try {
-    const [rows] = await db.promise().query(
-      'SELECT * FROM registro WHERE correo = ? AND contrasena = ?',
-      [correo, password]
-    );
+  const [rows] = await db.promise().query(
+    'SELECT * FROM registro WHERE correo = ? AND contrasena = ?',
+    [correo, password]
+  );
 
-    if (rows.length === 0) {
-      return res.render('login', {
-        titulo: 'Login',
-        error: 'Correo o contraseña incorrectos'
-      });
-    }
-
-    req.session.usuario = rows[0];
-    req.session.carrito = [];
-
-    res.redirect('/inicio');
-
-  } catch (error) {
-    console.error(error);
-    res.send('Error al iniciar sesión');
+  if (!rows.length) {
+    return res.render('login', {
+      titulo: 'Login',
+      error: 'Correo o contraseña incorrectos'
+    });
   }
-});
 
-// ================== REGISTRO ==================
-app.get('/registro', (req, res) => {
-  res.render('registro', { titulo: 'Registro' });
-});
-
-app.post('/registro', async (req, res) => {
-  const { nombre, correo, password } = req.body;
-
-  try {
-    const [existe] = await db.promise().query(
-      'SELECT id FROM registro WHERE correo = ?',
-      [correo]
-    );
-
-    if (existe.length > 0) {
-      return res.render('registro', {
-        titulo: 'Registro',
-        error: 'Este correo ya está registrado'
-      });
-    }
-
-    await db.promise().query(
-      'INSERT INTO registro (nombre, correo, contrasena) VALUES (?, ?, ?)',
-      [nombre, correo, password]
-    );
-
-    res.redirect('/login');
-
-  } catch (error) {
-    console.error(error);
-    res.send('Error al registrar usuario');
-  }
+  req.session.usuario = rows[0];
+  req.session.carrito = [];
+  res.redirect('/inicio');
 });
 
 // ================== LOGOUT ==================
@@ -110,141 +67,145 @@ app.get('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/login'));
 });
 
-// ================== FUNCIONES AUXILIARES ==================
-function asignarImagenesPorDefecto(productos) {
-  const imagenesDefault = {
-    'aretes': '/images/aretes.jpg',
-    'collar': '/images/collar.jpg',
-    'anillo': '/images/anillo.jpg',
-    'pulsera': '/images/pulsera.jpg'
-  };
-
+// ================== IMÁGENES ==================
+function asignarImagenes(productos) {
   return productos.map(p => {
-    if (!p.imagen) {
-      const nombreLower = p.nombre.toLowerCase();
-      for (const [clave, ruta] of Object.entries(imagenesDefault)) {
-        if (nombreLower.includes(clave)) {
-          p.imagen = ruta;
-          break;
-        }
-      }
-      // Si no hay coincidencia, asignar imagen aleatoria o placeholder
-      if (!p.imagen) {
-        const keys = Object.keys(imagenesDefault);
-        p.imagen = imagenesDefault[keys[Math.floor(Math.random() * keys.length)]];
-      }
-    }
+    const n = p.nombre.toLowerCase();
+    p.imagen =
+      n.includes('arete') ? '/images/aretes.jpg' :
+      n.includes('collar') ? '/images/collar.jpg' :
+      n.includes('anillo') ? '/images/anillo.jpg' :
+      n.includes('pulsera') ? '/images/pulsera.jpg' :
+      '/images/default.jpg';
     return p;
   });
 }
 
-// ================== INICIO / TIENDA ==================
+// ================== TIENDA ==================
 app.get('/inicio', auth, async (req, res) => {
-  try {
-    const [productos] = await db.promise().query('SELECT * FROM productos');
-    const productosConImagenes = asignarImagenesPorDefecto(productos || []);
+  const [productos] = await db.promise().query(
+    'SELECT id, nombre, precio FROM productos'
+  );
 
-    res.render('tienda', {
-<<<<<<< HEAD
-      productos,
-=======
-      productos: productosConImagenes,
->>>>>>> bdce91121ec916b762c45293d90bf70a29a64ea7
-      usuario: req.session.usuario
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.send('Error al cargar productos');
-  }
-});
-
-// ================== AGREGAR AL CARRITO ==================
-app.get('/carrito/agregar/:id', auth, async (req, res) => {
-  const id = parseInt(req.params.id);
-  req.session.carrito = req.session.carrito || [];
-
-  try {
-    const [rows] = await db.promise().query(
-      'SELECT id, nombre, precio FROM productos WHERE id = ?',
-      [id]
-    );
-
-    if (rows.length > 0) {
-      req.session.carrito.push(rows[0]);
-    }
-
-    res.redirect('/consulta');
-
-  } catch (error) {
-    console.error(error);
-    res.send('Error al agregar al carrito');
-  }
-});
-
-// ================== VER CARRITO ==================
-app.get('/consulta', auth, (req, res) => {
-  res.render('consulta', {
-    carrito: req.session.carrito
+  res.render('tienda', {
+    productos: asignarImagenes(productos),
+    usuario: req.session.usuario
   });
 });
 
-// ================== ELIMINAR DEL CARRITO ==================
+// ================== CARRITO ==================
+app.get('/carrito/agregar/:id', auth, async (req, res) => {
+  const id = Number(req.params.id);
+  req.session.carrito ||= [];
+
+  const [rows] = await db.promise().query(
+    'SELECT id, nombre, precio FROM productos WHERE id = ?',
+    [id]
+  );
+
+  if (rows.length) req.session.carrito.push(rows[0]);
+  res.redirect('/consulta');
+});
+
+app.get('/consulta', auth, (req, res) => {
+  res.render('consulta', { carrito: req.session.carrito || [] });
+});
+
 app.post('/consulta/eliminar/:id', auth, (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   req.session.carrito = req.session.carrito.filter(p => p.id !== id);
   res.redirect('/consulta');
 });
 
-// ================== COMPRAR ==================
-app.post('/comprar', auth, async (req, res) => {
-  const carrito = req.session.carrito;
-  if (carrito.length === 0) return res.redirect('/consulta');
+// ================== PAGO ==================
+app.get('/pago', auth, (req, res) => {
+  const carrito = req.session.carrito || [];
+  if (!carrito.length) return res.redirect('/consulta');
+
+  const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
+  res.render('pago', { total });
+});
+
+// ================== PAGO CON TARJETA ==================
+app.get('/pagotarjeta', auth, (req, res) => {
+  const carrito = req.session.carrito || [];
+
+  if (!carrito.length) {
+    return res.redirect('/consulta');
+  }
+
+  const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
+
+  res.render('pagotarjeta', {
+    titulo: 'Pago con tarjeta',
+    carrito,
+    total
+  });
+});
+
+app.post('/pagotarjeta', auth, async (req, res) => {
+  const carrito = req.session.carrito || [];
+  if (!carrito.length) return res.redirect('/consulta');
 
   const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
   const usuario_id = req.session.usuario.id;
 
-  try {
-    const [venta] = await db.promise().query(
-      'INSERT INTO ventas (usuario_id, total, fecha) VALUES (?, ?, NOW())',
-      [usuario_id, total]
-    );
+  // (simulación de pago exitoso)
+  await db.promise().query(
+    'INSERT INTO ventas (usuario_id, total) VALUES (?, ?)',
+    [usuario_id, total]
+  );
 
-    const venta_id = venta.insertId;
+  req.session.carrito = [];
+  res.redirect('/tickets');
+});
 
-    for (const item of carrito) {
-      await db.promise().query(
-        'INSERT INTO detalle_venta (venta_id, producto_id, cantidad, precio) VALUES (?, ?, ?, ?)',
-        [venta_id, item.id, 1, item.precio]
-      );
-    }
+// ================== COMPRAR ==================
+app.post('/comprar', auth, async (req, res) => {
+  const carrito = req.session.carrito || [];
+  if (!carrito.length) return res.redirect('/consulta');
 
-    req.session.carrito = [];
-    res.redirect('/tickets');
+  const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
+  const usuario_id = req.session.usuario.id;
 
-  } catch (error) {
-    console.error(error);
-    res.send('Error al guardar la compra');
-  }
+  await db.promise().query(
+    'INSERT INTO ventas (usuario_id, total) VALUES (?, ?)',
+    [usuario_id, total]
+  );
+
+  req.session.carrito = [];
+  res.redirect('/tickets');
 });
 
 // ================== TICKETS ==================
 app.get('/tickets', auth, async (req, res) => {
+  const [ventas] = await db.promise().query(
+    'SELECT * FROM ventas WHERE usuario_id = ? ORDER BY fecha DESC',
+    [req.session.usuario.id]
+  );
+
+  res.render('tickets', { ventas });
+});
+
+// ================== ELIMINAR TICKET ==================
+app.post('/tickets/eliminar/:id', auth, async (req, res) => {
+  const id = Number(req.params.id);
+
   try {
-    const [ventas] = await db.promise().query(
-      'SELECT * FROM ventas WHERE usuario_id = ? ORDER BY fecha DESC',
-      [req.session.usuario.id]
+    await db.promise().query(
+      'DELETE FROM ventas WHERE id = ? AND usuario_id = ?',
+      [id, req.session.usuario.id]
     );
 
-    res.render('tickets', { ventas });
+    res.redirect('/tickets');
 
   } catch (error) {
     console.error(error);
-    res.send('Error al cargar tickets');
+    res.send('Error al eliminar el registro');
   }
 });
 
-// ================== SERVIDOR ==================
+// ================== SERVER ==================
 app.listen(9999, () => {
   console.log('Servidor activo en http://localhost:9999');
 });
