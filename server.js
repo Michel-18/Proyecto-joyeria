@@ -19,11 +19,12 @@ app.use(session({
 }));
 
 // ================== DB ==================
+// ================== DB ==================
 const db = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'jewerly_girl'
+  host: 'sql5.freesqldatabase.com',
+  user: 'sql5814841',
+  password: 'L5A9IQuHI8',
+  database: 'sql5814841'
 });
 
 // ================== AUTH ==================
