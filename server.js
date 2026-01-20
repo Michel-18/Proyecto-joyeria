@@ -19,7 +19,6 @@ app.use(session({
 }));
 
 // ================== DB ==================
-// ================== DB ==================
 const db = mysql.createPool({
   host: 'sql5.freesqldatabase.com',
   user: 'sql5814841',
@@ -40,31 +39,58 @@ app.get('/', (req, res) => {
 
 // ================== LOGIN ==================
 app.get('/login', (req, res) => {
-  res.render('login', { titulo: 'Iniciar sesión' });
+  res.render('login', { titulo: 'Iniciar sesión', error: null });
 });
 
 app.post('/login', async (req, res) => {
   const { correo, password } = req.body;
 
-  const [rows] = await db.promise().query(
-    'SELECT * FROM registro WHERE correo = ? AND contrasena = ?',
-    [correo, password]
-  );
+  try {
+    const [rows] = await db.promise().query(
+      'SELECT * FROM registro WHERE correo = ? AND contrasena = ? LIMIT 1',
+      [correo, password]
+    );
 
-  if (!rows.length) {
-    return res.render('login', {
-      titulo: 'Login',
-      error: 'Correo o contraseña incorrectos'
-    });
+    if (!rows.length) {
+      return res.render('login', {
+        titulo: 'Iniciar sesión',
+        error: 'Correo o contraseña incorrectos'
+      });
+    }
+
+    req.session.usuario = rows[0];
+    req.session.carrito = [];
+    res.redirect('/inicio');
+
+  } catch (error) {
+    console.error(error);
+    res.send('Error en login');
   }
-
-  req.session.usuario = rows[0];
-  req.session.carrito = [];
-  res.redirect('/inicio');
 });
+
 // ================== REGISTRO ==================
 app.get('/registro', (req, res) => {
-  res.render('registro', { titulo: 'Registro' });
+  res.render('registro', { titulo: 'Registro', error: null });
+});
+
+app.post('/registro', async (req, res) => {
+  const { nombre, correo, password } = req.body;
+
+  try {
+    await db.promise().query(
+      'INSERT INTO registro (nombre, correo, contrasena) VALUES (?, ?, ?)',
+      [nombre, correo, password]
+    );
+
+    res.redirect('/login');
+
+  } catch (error) {
+    console.error(error);
+    res.render('registro', {
+      titulo: 'Registro',
+      error: 'No se pudo registrar'
+    });
+  }
 });
 
 // ================== LOGOUT ==================
@@ -134,10 +160,7 @@ app.get('/pago', auth, (req, res) => {
 // ================== PAGO CON TARJETA ==================
 app.get('/pagotarjeta', auth, (req, res) => {
   const carrito = req.session.carrito || [];
-
-  if (!carrito.length) {
-    return res.redirect('/consulta');
-  }
+  if (!carrito.length) return res.redirect('/consulta');
 
   const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
 
@@ -153,29 +176,10 @@ app.post('/pagotarjeta', auth, async (req, res) => {
   if (!carrito.length) return res.redirect('/consulta');
 
   const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
-  const usuario_id = req.session.usuario.id;
-
-  // (simulación de pago exitoso)
-  await db.promise().query(
-    'INSERT INTO ventas (usuario_id, total) VALUES (?, ?)',
-    [usuario_id, total]
-  );
-
-  req.session.carrito = [];
-  res.redirect('/tickets');
-});
-
-// ================== COMPRAR ==================
-app.post('/comprar', auth, async (req, res) => {
-  const carrito = req.session.carrito || [];
-  if (!carrito.length) return res.redirect('/consulta');
-
-  const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
-  const usuario_id = req.session.usuario.id;
 
   await db.promise().query(
     'INSERT INTO ventas (usuario_id, total) VALUES (?, ?)',
-    [usuario_id, total]
+    [req.session.usuario.id, total]
   );
 
   req.session.carrito = [];
@@ -190,24 +194,6 @@ app.get('/tickets', auth, async (req, res) => {
   );
 
   res.render('tickets', { ventas });
-});
-
-// ================== ELIMINAR TICKET ==================
-app.post('/tickets/eliminar/:id', auth, async (req, res) => {
-  const id = Number(req.params.id);
-
-  try {
-    await db.promise().query(
-      'DELETE FROM ventas WHERE id = ? AND usuario_id = ?',
-      [id, req.session.usuario.id]
-    );
-
-    res.redirect('/tickets');
-
-  } catch (error) {
-    console.error(error);
-    res.send('Error al eliminar el registro');
-  }
 });
 
 // ================== SERVER ==================
