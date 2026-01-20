@@ -1,4 +1,4 @@
-const express = require('express');
+econst express = require('express');
 const session = require('express-session');
 const mysql = require('mysql2');
 const path = require('path');
@@ -156,6 +156,27 @@ app.get('/pago', auth, (req, res) => {
   const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
   res.render('pago', { total });
 });
+// ================== COMPRAR (EFECTIVO) ==================
+app.post('/comprar', auth, async (req, res) => {
+  const carrito = req.session.carrito || [];
+  if (!carrito.length) return res.redirect('/consulta');
+
+  const total = carrito.reduce((s, p) => s + Number(p.precio), 0);
+
+  try {
+    await db.promise().query(
+      'INSERT INTO ventas (usuario_id, total) VALUES (?, ?)',
+      [req.session.usuario.id, total]
+    );
+
+    req.session.carrito = [];
+    res.redirect('/tickets');
+
+  } catch (error) {
+    console.error(error);
+    res.send('Error al procesar el pago en efectivo');
+  }
+});
 
 // ================== PAGO CON TARJETA ==================
 app.get('/pagotarjeta', auth, (req, res) => {
@@ -194,6 +215,23 @@ app.get('/tickets', auth, async (req, res) => {
   );
 
   res.render('tickets', { ventas });
+});
+// ================== ELIMINAR TICKET ==================
+app.post('/tickets/eliminar/:id', auth, async (req, res) => {
+  const id = Number(req.params.id);
+
+  try {
+    await db.promise().query(
+      'DELETE FROM ventas WHERE id = ? AND usuario_id = ?',
+      [id, req.session.usuario.id]
+    );
+
+    res.redirect('/tickets');
+
+  } catch (error) {
+    console.error(error);
+    res.send('Error al eliminar el ticket');
+  }
 });
 
 // ================== SERVER ==================
