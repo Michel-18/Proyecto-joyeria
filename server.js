@@ -62,6 +62,10 @@ app.post('/login', async (req, res) => {
   req.session.carrito = [];
   res.redirect('/inicio');
 });
+// ================== REGISTRO ==================
+app.get('/registro', (req, res) => {
+  res.render('registro', { titulo: 'Registro' });
+});
 
 // ================== LOGOUT ==================
 app.get('/logout', (req, res) => {
